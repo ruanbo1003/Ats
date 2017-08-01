@@ -15,6 +15,9 @@ TimeOp::TimeOp()
     _last_ms = chrono::duration_cast<chrono::milliseconds>(nowt.time_since_epoch()).count();
     _last_s = chrono::system_clock::to_time_t(nowt);
     _last_tm = *std::localtime(&_last_s);
+
+    bzero(_datebuf, sizeof(_datebuf));
+    bzero(_timebuf, sizeof(_timebuf));
 }
 
 TimeOp::~TimeOp()
@@ -77,32 +80,43 @@ std::pair<string, string> TimeOp::date_time()
 {
     onUpdate();
 
-    string fmt_date = "";
-    string fmt_time = "";
+    //GCC5 才支持 std::put_time
+//    string fmt_date = "";
+//    string fmt_time = "";
+//
+//    std::stringstream sst;
+//    sst << std::put_time(&_last_tm ,"%Y:%m:%d");
+//    fmt_date = sst.str();
+//
+//    sst.clear();
+//    sst.str("");
+//    sst << std::put_time(&_last_tm, "%H:%M:%S");
+//    fmt_time = sst.str();
+//
+//    return make_pair(fmt_date, fmt_time);
 
-    std::stringstream sst;
-    sst << std::put_time(&_last_tm ,"%Y:%m:%d");
-    fmt_date = sst.str();
+    bzero(_datebuf, sizeof(_datebuf));
+    strftime(_datebuf, sizeof(_datebuf), "%Y:%m:%d", &_last_tm);
+    bzero(_timebuf, sizeof(_timebuf));
+    strftime(_timebuf, sizeof(_timebuf), "%Y:%m:%d", &_last_tm);
 
-    sst.clear();
-    sst.str("");
-    sst << std::put_time(&_last_tm, "%H:%M:%S");
-    fmt_time = sst.str();
-
-    return make_pair(fmt_date, fmt_time);
+    return make_pair(_datebuf, _timebuf);
 }
 
 string TimeOp::date()
 {
     onUpdate();
 
-    string fmt_date = "";
+//    string fmt_date = "";
+//    std::stringstream sst;
+//    sst << std::put_time(&_last_tm ,"%Y:%m:%d");
+//    fmt_date = sst.str();
+//    return fmt_date;
 
-    std::stringstream sst;
-    sst << std::put_time(&_last_tm ,"%Y:%m:%d");
-    fmt_date = sst.str();
+    bzero(_datebuf, sizeof(_datebuf));
+    strftime(_datebuf, sizeof(_datebuf), "%Y:%m:%d", &_last_tm);
 
-    return fmt_date;
+    return _datebuf;
 }
 
 time_t TimeOp::nowt()const
@@ -112,10 +126,16 @@ time_t TimeOp::nowt()const
 
 string TimeOp::time2date(time_t t)
 {
+//    std::tm cur_tm = *std::localtime(&t);
+//    std::stringstream sst;
+//    sst << std::put_time(&cur_tm ,"%Y:%m:%d");
+//    return sst.str();
+
     std::tm cur_tm = *std::localtime(&t);
-    std::stringstream sst;
-    sst << std::put_time(&cur_tm ,"%Y:%m:%d");
-    return sst.str();
+    bzero(_timebuf, sizeof(_timebuf));
+    strftime(_timebuf, sizeof(_timebuf), "%Y:%m:%d", &cur_tm);
+
+    return _timebuf;
 }
 
 

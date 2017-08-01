@@ -15,6 +15,8 @@ void split(const string& str, const string& delim, std::vector<string>& ret);
 void trim_left(string& src, char c);
 void trim_right(string& src, char c);
 
+string get_path();
+
 }  // namespace utils
 
 

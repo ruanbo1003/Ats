@@ -7,6 +7,7 @@
 
 #include <AtsMain/trader/AtsTrader.hpp>
 #include "comm/comm.hpp"
+#include "utils/utils.hpp"
 
 
 AtsTrader::AtsTrader(const string& front)
@@ -20,6 +21,16 @@ AtsTrader::~AtsTrader()
 
 }
 
+void AtsTrader::init_func()
+{
+//    _init_funcs[1] = reqAllInstrument;
+//    _init_funcs[2] = reqTradingAccount;
+//    _init_funcs[3] = reqInvestorPosition;
+
+    _init_funcs[1] = std::bind(&AtsTrader::reqAllInstrument, this);
+    _init_funcs[2] = std::bind(&AtsTrader::reqTradingAccount, this);
+    _init_funcs[3] = std::bind(&AtsTrader::reqInvestorPosition, this);
+}
 void AtsTrader::init_vals()
 {
     _broker_id = "";
@@ -33,14 +44,16 @@ void AtsTrader::init_vals()
     _is_stop = false;   // 系统开始运行，
 
     _run_secs = 0;
+    _settlement_path = "/home/ruanbo/Codes/Ats/AtsData/Settlement/";
+    _run_path = utils::get_path();
 
     _time_op = TimeOpPtr(new TimeOp());
-    _cc = CodeConvertPtr(new CodeConvert("gb2312", "utf-8"));
+    _cc = CodeConvertPtr(new CodeConvert("latin1", "utf-8"));
     _order_mngr = OrderMngrPtr(new OrderMngr());
 
-
-
     _mysql = MysqlDbPtr(new MysqlDb());
+
+    init_func();
 }
 
 void AtsTrader::update_status(AtsStatus status)
@@ -122,21 +135,30 @@ bool AtsTrader::is_stop()const
 
 void AtsTrader::on_next_second()
 {
-    _run_secs++;
-    Log("on_next_second:%d, status:%d", _run_secs, _ats_status);
-
-    check_settlement();
     check_login();
 
-    if(_run_secs == 10)
+    check_settlement();
+
+    if(status() < ATS_Confirmed)
     {
-        onOrderInsert();
+        return;
     }
+    _run_secs++;
+
+    Log("on_next_second:%ld, status:%d", _run_secs, _ats_status);
+
+    auto func_it = _init_funcs.find(_run_secs);
+    if(func_it != _init_funcs.end())
+    {
+        auto one_init_f = func_it->second;
+        one_init_f();
+    }
+
 }
 
 void AtsTrader::on_next_minute()
 {
-    Log("on_next_minute");
+    Log("on_next_minute, status:%d", _ats_status);
 
 //    reqSettlementInfo();
 }
@@ -169,7 +191,7 @@ void AtsTrader::reqLogin()
 
     if(ret == 0)
     {
-        Log("send login request ok.");
+        Log("send login request ok.\n");
     }
     else if(ret == -1)
     {
@@ -231,14 +253,14 @@ void AtsTrader::reqLogout()
 
 void AtsTrader::OnFrontConnected()
 {
-    Log("AtsTrader::OnFrontConnected");
+    Log("AtsTrader::OnFrontConnected\n");
 
     update_status(ATS_Connected);
 
     if(is_stop() == false)
     {
-        //reqAuthenticate();
-        reqLogin();
+//        reqAuthenticate();
+//        reqLogin();  这里不做登陆操作，而是放在定时器里，避免重复发送登陆请求
     }
 
 }
@@ -285,9 +307,9 @@ void AtsTrader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThos
         Log("BrokerID:%s", pRspUserLogin->BrokerID);
         Log("UserID:%s", pRspUserLogin->UserID);
         Log("SystemName:%s", pRspUserLogin->SystemName);
-        Log("FrontID:%d", pRspUserLogin->FrontID);
-        Log("SessionID:%d", pRspUserLogin->SessionID);
-        Log("MaxOrderRef:%s", pRspUserLogin->MaxOrderRef);
+        Log("FrontID前置编号:%d", pRspUserLogin->FrontID);
+        Log("SessionID会话编号:%d", pRspUserLogin->SessionID);
+        Log("MaxOrderRef最大报单编号:%s", pRspUserLogin->MaxOrderRef);
         Log("SHFETime:%s", pRspUserLogin->SHFETime);
         Log("DCETime:%s", pRspUserLogin->DCETime);
         Log("CZCETime:%s", pRspUserLogin->CZCETime);
@@ -301,15 +323,13 @@ void AtsTrader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThos
     {
         update_status(ATS_Logined);
 
-        Log("Ats Trader Login success");
+        Log("Ats Trader Login success\n");
     }
     else
     {
-        Log("Ats Trader Login failed");
+        Log("Ats Trader Login failed\n");
         return;
     }
-
-    reqTradingAccount();
 
 //    reqSettlementInfo();
 //    loop();
@@ -332,50 +352,6 @@ bool AtsTrader::is_login()const
     return (status() == ATS_Logined);
 }
 
-
-
-// 查询资金账户
-void AtsTrader::reqTradingAccount()
-{
-    CThostFtdcQryTradingAccountField req;
-    memset(&req, 0, sizeof(req));
-    strcpy(req.BrokerID, _broker_id.data());
-    strcpy(req.InvestorID, _investor_id.data());
-    strcpy(req.CurrencyID, "CNY");
-
-    int ret = _pUserApi->ReqQryTradingAccount(&req, ++_requestId);
-    LogFunc;
-    Log("ret:%d", ret);
-}
-void AtsTrader::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccount, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
-    if(pRspInfo && pRspInfo->ErrorID != 0)
-    {
-        LogError("OnRspQryTradingAccount failed");
-        return;
-    }
-
-    if(!pTradingAccount)
-    {
-        LogError("OnRspQryTradingAccount rsp failed");
-        return;
-    }
-
-    Log("===OnRspQryTradingAccount查询资金账户 begin===");
-    Log("BrokerID %s", pTradingAccount->BrokerID);
-    Log("AccountID %s", pTradingAccount->AccountID);
-    Log("上次存款额:%f", pTradingAccount->PreDeposit);
-    Log("期货结算准备金:%f", pTradingAccount->Balance);
-    Log("可用资金:%f", pTradingAccount->Available);
-    Log("基本准备金:%f", pTradingAccount->Reserve);
-    Log("===OnRspQryTradingAccount查询资金账户 end===\n");
-}
-
-// 持仓
-void AtsTrader::reqInvestorPosition()
-{
-
-}
 
 
 //错误应答

@@ -23,12 +23,14 @@ enum AtsStatus
 
     ATS_Connected = 1,
     ATS_Logined = 2,
-    ATS_Confirmed = 3,
-    ATS_Stop = 4,
+    ATS_Confirming = 3,
+    ATS_Confirmed = 4,
+    ATS_Stop = 5,
 
     ATS_End = 9999,
 };
 
+typedef void (*FuncPtr)(void);
 
 class AtsTrader : public CThostFtdcTraderSpi
 {
@@ -44,7 +46,10 @@ private:
     bool _is_stop;   // 时候停止运行
     string _front_addr;     // 交易前置
 
-    int _run_secs;   // 运行的秒数
+    unsigned long int _run_secs;   // 运行的秒数
+
+    string _settlement_path;  // 结算信息文件根目录
+    string _run_path; // 当前路径
 
     //时间操作
     TimeOpPtr _time_op;
@@ -57,11 +62,14 @@ private:
     // MySql数据库
     MysqlDbPtr _mysql;
 
+    map<int, std::function<void(void)>> _init_funcs;
+
 public:
     AtsTrader(const string& front);
     virtual ~AtsTrader();
 
 private:
+    void init_func();
     void init_vals();
 
     void update_status(AtsStatus status);
@@ -106,11 +114,6 @@ public:
     void reqLogout();
 
 public:
-    //查询资金账户
-    void reqTradingAccount();
-    void OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccount, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-
-public:
     /* 为了使投资者及时准确的了解自己的交易状况，如可用资金，持仓，保证金占用等，从而及时了解自己的风
        险状况，综合交易平台要求投资者在每一个交易日进行交易前都必须对前一交易日的结算结果进行确认。
     */
@@ -126,10 +129,12 @@ public:
     void reqSettlementInfoConfrm();
     void OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
-    void on_settlement_confirmed();
+    void on_settlement_confirmed(bool directConfirm=false);
+
 public:
     //持仓
     void reqInvestorPosition();
+    void OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestorPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 public:
     //报单
@@ -144,6 +149,18 @@ public:
 
     //创建一个报单
     bool make_order();
+
+public:
+    // 合约
+    void reqAllInstrument();
+
+    void OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+
+
+public:
+    //　资金账户
+    void reqTradingAccount();
+    void OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccount, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 private:
     //错误应答

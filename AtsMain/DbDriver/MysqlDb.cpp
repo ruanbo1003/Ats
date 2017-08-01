@@ -49,9 +49,6 @@ bool MysqlDb::init()
         return false;
     }
 
-    _conn->setSchema("ctp");
-    _conn->setAutoCommit(true);
-
     _stmt = MysqlStatementPtr(_conn->createStatement());
     if(!_stmt)
     {
@@ -65,6 +62,9 @@ bool MysqlDb::init()
         unit();
         return false;
     }
+
+    _conn->setSchema("ctp");
+    _conn->setAutoCommit(true);
 
     return true;
 }
@@ -173,7 +173,7 @@ int MysqlDb::execute_pre_update(const MysqlPreStatePtr& pre_stat)
     }
     catch (sql::SQLException& e)
     {
-        LogError("sql::SQLException:mysql prestatement update error");
+        LogError("sql::SQLException:mysql prestatement update error:%s", e.what());
         return -1;
     }
     catch(std::exception& e)

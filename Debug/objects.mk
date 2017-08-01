@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lthosttraderapi -lmysqlcppconn -lthostmduserapi
+LIBS := -lmysqlcppconn -lthosttraderapi -lthostmduserapi
 

@@ -51,7 +51,7 @@ all: Ats
 Ats: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++  -o "Ats" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L"/home/ruanbo/Codes/Ats/ctp" -o "Ats" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -61,6 +61,5 @@ clean:
 	-@echo ' '
 
 .PHONY: all clean dependents
-.SECONDARY:
 
 -include ../makefile.targets

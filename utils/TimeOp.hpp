@@ -26,6 +26,9 @@ private:
     long int _last_s;
     std::tm _last_tm;
 
+    char _datebuf[64];
+    char _timebuf[64];
+
 public:
     TimeOp();
     virtual ~TimeOp();

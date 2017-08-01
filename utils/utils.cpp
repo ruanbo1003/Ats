@@ -36,4 +36,16 @@ void trim_right(string& src, char c)
     src.erase(src.find_last_not_of(c) + 1);
 }
 
+string get_path()
+{
+    char cwd[1024];
+
+    if (getcwd(cwd,sizeof(cwd)) == NULL)
+    {
+        return NULL;
+    }
+
+    return cwd;
+}
+
 }  // namespace utils
