@@ -33,7 +33,7 @@ void AtsQuote::ReqUserLogin()
     CThostFtdcReqUserLoginField req;
     memset(&req, 0, sizeof(req));
     strcpy(req.BrokerID, "9999");
-    strcpy(req.UserID, "082609");   // 18575651049
+    strcpy(req.UserID, "082609");   //
     strcpy(req.Password, "ruanbo1003");
 
     int ret = _pUserApi->ReqUserLogin(&req, ++_requestId);
@@ -52,7 +52,7 @@ void AtsQuote::ReqUserLogout()
     memset(&req, 0, sizeof(req));
 
     strcpy(req.BrokerID, "9999");   //9999
-    strcpy(req.UserID, "082609");   // 18575651049  082609
+    strcpy(req.UserID, "082609");   //
 //    strcpy(req.BrokerID, "");   //9999
 //    strcpy(req.UserID, "");
 
@@ -121,7 +121,7 @@ void AtsQuote::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificIn
     LogLine("OnRspSubMarketData ");
     showRspInfo(pRspInfo, nRequestID, bIsLast);
 
-    Log("åˆçº¦idï¼š%s", pSpecificInstrument->InstrumentID);
+    Log("ºÏÔ¼id£º%s", pSpecificInstrument->InstrumentID);
 }
 
 void AtsQuote::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)

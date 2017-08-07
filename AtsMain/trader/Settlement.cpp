@@ -7,167 +7,163 @@
 
 #include <AtsMain/trader/AtsTrader.hpp>
 
-
 void AtsTrader::check_settlement()
 {
-    if(status() != ATS_Logined)
-    {
-        return;
-    }
+	if(status() != ATS_Logined)
+	{
+		return;
+	}
 
-    Log("check check_settlement()");
+	Log("check check_settlement()");
 
-    if(_mysql->is_settlement_confirmed(_time_op->date()) == true)
-    {
-        on_settlement_confirmed(true);
-        return;
-    }
+	if(_mysql->is_settlement_confirmed(_time_op->date()) == true)
+	{
+		on_settlement_confirmed(true);
+		return;
+	}
 
-    if(!_settlement_f)
-    {
-        _settlement_f = FileOpPtr(new FileOp(_settlement_path + _time_op->date() + ".txt"));
-    }
+	if(!_settlement_f)
+	{
+		_settlement_f = FileOpPtr(new FileOp(_settlement_path + _time_op->date() + ".txt"));
+	}
 
-    reqSettlementInfo();
+	reqSettlementInfo();
 }
 
-// æŸ¥è¯¢æŠ•èµ„è€…ç»“ç®—å•
+// ²éÑ¯Í¶×ÊÕß½áËãµ¥
 void AtsTrader::reqSettlementInfo()
 {
-    if(status() >= ATS_Confirming)
-    {
-        return;
-    }
+	if(status() >= ATS_Confirming)
+	{
+		return;
+	}
 
-    CThostFtdcQrySettlementInfoField req;
-    memset(&req, 0, sizeof(req));
-    strcpy(req.BrokerID, _broker_id.data());
-    strcpy(req.InvestorID, _investor_id.data());
+	CThostFtdcQrySettlementInfoField req;
+	memset(&req, 0, sizeof(req));
+	strcpy(req.BrokerID, _broker_id.data());
+	strcpy(req.InvestorID, _investor_id.data());
 //    strcpy(req.TradingDay, "20170731");
 
-    int ret = _pUserApi->ReqQrySettlementInfo(&req, ++_requestId);
-    if(ret == 0)
-    {
-        update_status(ATS_Confirming);
-    }
+	int ret = _pUserApi->ReqQrySettlementInfo(&req, ++_requestId);
+	if(ret == 0)
+	{
+		update_status(ATS_Confirming);
+	}
 
-    Log("reqSettlementInfo æŸ¥è¯¢æŠ•èµ„è€…ç»“ç®—å• ret:%d\n", ret);
+	Log("reqSettlementInfo ²éÑ¯Í¶×ÊÕß½áËãµ¥ ret:%d\n", ret);
 }
 void AtsTrader::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementInfo, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-    if(pRspInfo && pRspInfo->ErrorID != 0)
-    {
-        LogError("OnRspQrySettlementInfo failed");
-        return;
-    }
+	if(pRspInfo && pRspInfo->ErrorID != 0)
+	{
+		LogError("OnRspQrySettlementInfo failed");
+		return;
+	}
 
-    if(!pSettlementInfo)
-    {
-        LogError("OnRsqQrySettlementInfo failed:pSettlementInfo is NULL");
-        if(pRspInfo)
-        {
-            Log("errerid:%d", pRspInfo->ErrorID);
-        }
-        return;
-    }
+	if(!pSettlementInfo)
+	{
+		LogError("OnRsqQrySettlementInfo failed:pSettlementInfo is NULL");
+		if(pRspInfo)
+		{
+			Log("errerid:%d", pRspInfo->ErrorID);
+		}
+		return;
+	}
 
-    Log("===OnRspQrySettlementInfoç»“ç®—ç»“æœ begin===bIsLast:%d", bIsLast);
-    Log("TradingDayäº¤æ˜“æ—¥:%s", pSettlementInfo->TradingDay);
-    Log("SequenceNoåºå·:%d", pSettlementInfo->SequenceNo);
-//    Log("Contentæ¶ˆæ¯æ­£æ–‡:%s", pSettlementInfo->Content);
+	Log("===OnRspQrySettlementInfo½áËã½á¹û begin===bIsLast:%d", bIsLast);
+	Log("TradingDay½»Ò×ÈÕ:%s", pSettlementInfo->TradingDay);
+	Log("SequenceNoĞòºÅ:%d", pSettlementInfo->SequenceNo);
+//    Log("ContentÏûÏ¢ÕıÎÄ:%s", pSettlementInfo->Content);
 //    Log("strlen(pSettlementInfo->Content):%ld", strlen(pSettlementInfo->Content));
-//    Log("Contentæ¶ˆæ¯æ­£æ–‡:%s", onCC(pSettlementInfo->Content, strlen(pSettlementInfo->Content)));
+//    Log("ContentÏûÏ¢ÕıÎÄ:%s", onCC(pSettlementInfo->Content, strlen(pSettlementInfo->Content)));
 
 //    _settlement_f->write(onCC(pSettlementInfo->Content, 501));
-    _settlement_f->write(pSettlementInfo->Content, 501);
+	_settlement_f->write(pSettlementInfo->Content, 501);
 
-    Log("===OnRspQrySettlementInfoç»“ç®—ç»“æœ end===\n");
+	Log("===OnRspQrySettlementInfo½áËã½á¹û end===\n");
 
-    if(bIsLast == true)
-    {
-        SettlementInfoConfirm();
-    }
+	if(bIsLast == true)
+	{
+		SettlementInfoConfirm();
+	}
 }
 
-
-
-// ç¡®è®¤ç»“ç®—å•
+// È·ÈÏ½áËãµ¥
 void AtsTrader::SettlementInfoConfirm()
 {
-    std::pair<string, string> dt = _time_op->date_time();
+	std::pair<string, string> dt = _time_op->date_time();
 
-    CThostFtdcSettlementInfoConfirmField req;
-    memset(&req, 0, sizeof(req));
-    strcpy(req.BrokerID, _broker_id.data());
-    strcpy(req.InvestorID, _investor_id.data());
-    strcpy(req.ConfirmDate, dt.first.data());
-    strcpy(req.ConfirmTime, dt.second.data()); //10ç‚¹30åˆ†01ç§’
+	CThostFtdcSettlementInfoConfirmField req;
+	memset(&req, 0, sizeof(req));
+	strcpy(req.BrokerID, _broker_id.data());
+	strcpy(req.InvestorID, _investor_id.data());
+	strcpy(req.ConfirmDate, dt.first.data());
+	strcpy(req.ConfirmTime, dt.second.data()); //10µã30·Ö01Ãë
 
-    int ret = _pUserApi->ReqSettlementInfoConfirm(&req, ++_requestId);
+	int ret = _pUserApi->ReqSettlementInfoConfirm(&req, ++_requestId);
 
-    Log("reqSettlementInfoConfirm ç¡®è®¤ç»“ç®—å•ï¼Œret:%d\n", ret);
+	Log("reqSettlementInfoConfirm È·ÈÏ½áËãµ¥£¬ret:%d\n", ret);
 }
 
 void AtsTrader::OnRspSettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-    if(pRspInfo && pRspInfo->ErrorID != 0)
-    {
-        LogError("OnRspQrySettlementInfo failed");
-        return;
-    }
+	if(pRspInfo && pRspInfo->ErrorID != 0)
+	{
+		LogError("OnRspQrySettlementInfo failed");
+		return;
+	}
 
-    if(!pSettlementInfoConfirm)
-    {
-        LogError("OnRsqQrySettlementInfo failed:pSettlementInfo is NULL");
-        return;
-    }
+	if(!pSettlementInfoConfirm)
+	{
+		LogError("OnRsqQrySettlementInfo failed:pSettlementInfo is NULL");
+		return;
+	}
 
-    Log("===OnRspQrySettlementInfo ç»“ç®—ä¿¡æ¯ç¡®è®¤ begin===bIsLast:%d", bIsLast);
-    Log("ConfirmDate ç¡®è®¤æ—¥æœŸ:%s", pSettlementInfoConfirm->ConfirmDate);
-    Log("ConfirmTime ç¡®è®¤æ—¶é—´:%s", pSettlementInfoConfirm->ConfirmTime);
-    Log("===OnRspQrySettlementInfo ç»“ç®—ä¿¡æ¯ç¡®è®¤ end===\n");
+	Log("===OnRspQrySettlementInfo ½áËãĞÅÏ¢È·ÈÏ begin===bIsLast:%d", bIsLast);
+	Log("ConfirmDate È·ÈÏÈÕÆÚ:%s", pSettlementInfoConfirm->ConfirmDate);
+	Log("ConfirmTime È·ÈÏÊ±¼ä:%s", pSettlementInfoConfirm->ConfirmTime);
+	Log("===OnRspQrySettlementInfo ½áËãĞÅÏ¢È·ÈÏ end===\n");
 
-    on_settlement_confirmed();
+	on_settlement_confirmed();
 }
 
-
-// æŸ¥è¯¢ç»“ç®—å•ç¡®è®¤çš„æ—¥æœŸ
+// ²éÑ¯½áËãµ¥È·ÈÏµÄÈÕÆÚ
 void AtsTrader::reqSettlementInfoConfrm()
 {
-    CThostFtdcQrySettlementInfoConfirmField req;
-    bzero(&req, sizeof(req));
-    strcpy(req.BrokerID, _broker_id.data());
-    strcpy(req.InvestorID, _investor_id.data());
+	CThostFtdcQrySettlementInfoConfirmField req;
+	bzero(&req, sizeof(req));
+	strcpy(req.BrokerID, _broker_id.data());
+	strcpy(req.InvestorID, _investor_id.data());
 
-    int ret = _pUserApi->ReqQrySettlementInfoConfirm(&req, ++_requestId);
+	int ret = _pUserApi->ReqQrySettlementInfoConfirm(&req, ++_requestId);
 
-    Log("reqSettlementInfoConfrm ret:%d", ret);
+	Log("reqSettlementInfoConfrm ret:%d", ret);
 }
 void AtsTrader::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-    if(pRspInfo && pRspInfo->ErrorID != 0)
-    {
-        LogError("OnRspQrySettlementInfo failed");
-        return;
-    }
+	if(pRspInfo && pRspInfo->ErrorID != 0)
+	{
+		LogError("OnRspQrySettlementInfo failed");
+		return;
+	}
 
-    if(!pSettlementInfoConfirm)
-    {
-        LogError("OnRsqQrySettlementInfo failed:pSettlementInfo is NULL");
-        return;
-    }
+	if(!pSettlementInfoConfirm)
+	{
+		LogError("OnRsqQrySettlementInfo failed:pSettlementInfo is NULL");
+		return;
+	}
 
-    Log("===OnRspQrySettlementInfo æŸ¥è¯¢ç»“ç®—å•ç¡®è®¤çš„æ—¥æœŸ begin===bIsLast:%d", bIsLast);
-    Log("ConfirmDate ç¡®è®¤æ—¥æœŸ:%s", pSettlementInfoConfirm->ConfirmDate);
-    Log("ConfirmTime ç¡®è®¤æ—¶é—´:%s", pSettlementInfoConfirm->ConfirmTime);
-    Log("===OnRspQrySettlementInfo æŸ¥è¯¢ç»“ç®—å•ç¡®è®¤çš„æ—¥æœŸ end===\n");
+	Log("===OnRspQrySettlementInfo ²éÑ¯½áËãµ¥È·ÈÏµÄÈÕÆÚ begin===bIsLast:%d", bIsLast);
+	Log("ConfirmDate È·ÈÏÈÕÆÚ:%s", pSettlementInfoConfirm->ConfirmDate);
+	Log("ConfirmTime È·ÈÏÊ±¼ä:%s", pSettlementInfoConfirm->ConfirmTime);
+	Log("===OnRspQrySettlementInfo ²éÑ¯½áËãµ¥È·ÈÏµÄÈÕÆÚ end===\n");
 
-    on_settlement_confirmed();
+	on_settlement_confirmed();
 }
 
 void AtsTrader::on_settlement_confirmed(bool directConfirm)
 {
-    update_status(ATS_Confirmed);
+	update_status(ATS_Confirmed);
 
 //    reqAllInstrument();
 //
@@ -175,18 +171,13 @@ void AtsTrader::on_settlement_confirmed(bool directConfirm)
 //
 //    reqInvestorPosition();
 
-    if(directConfirm == false)
-    {
-        _mysql->setttlement_confirm(_time_op->date(), _time_op->nowt());
-    }
-    else
-    {
-        Log("ç›´æ¥ç¡®è®¤ã€‚\n");
-    }
+	if(directConfirm == false)
+	{
+		_mysql->setttlement_confirm(_time_op->date(), _time_op->nowt());
+	}
+	else
+	{
+		Log("Ö±½ÓÈ·ÈÏ¡£\n");
+	}
 }
-
-
-
-
-
 

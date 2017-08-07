@@ -32,7 +32,8 @@ AtsMain/trader/InvestorPotion.o: ../AtsMain/trader/InvestorPotion.cpp \
  /usr/local/include/mysqlcppconn/include/cppconn/prepared_statement.h \
  /usr/local/include/mysqlcppconn/include/cppconn/statement.h \
  /usr/local/include/mysqlcppconn/include/cppconn/metadata.h \
- /usr/local/include/mysqlcppconn/include/cppconn/warning.h
+ /usr/local/include/mysqlcppconn/include/cppconn/warning.h \
+ /home/ruanbo/Codes/Ats/AtsMain/AtsConfig.hpp
 
 /home/ruanbo/Codes/Ats/AtsMain/trader/AtsTrader.hpp:
 
@@ -101,3 +102,5 @@ AtsMain/trader/InvestorPotion.o: ../AtsMain/trader/InvestorPotion.cpp \
 /usr/local/include/mysqlcppconn/include/cppconn/metadata.h:
 
 /usr/local/include/mysqlcppconn/include/cppconn/warning.h:
+
+/home/ruanbo/Codes/Ats/AtsMain/AtsConfig.hpp:

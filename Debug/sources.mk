@@ -29,6 +29,7 @@ AtsMain/quote \
 AtsMain/trader \
 AtsMain/trader/data \
 . \
+ThirdLib/TinyXml2 \
 comm \
 tests \
 utils \

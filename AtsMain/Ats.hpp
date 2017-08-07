@@ -12,6 +12,7 @@
 #include <AtsMain/trader/AtsTrader.hpp>
 #include "comm/comm.hpp"
 #include "utils/IThread.hpp"
+#include "AtsConfig.hpp"
 
 
 class Ats : public IThread
@@ -19,10 +20,10 @@ class Ats : public IThread
 private:
     CThostFtdcMdApi* _md_api;
     AtsQuote* _md_spi;
-    string _md_front;
 
     AtsTrader* _trader_spi;
-    string _trader_front;
+
+    AtsConfigPtr _config;
 
 public:
     Ats();

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>  
+<root>
+	<account>
+		<item broker="9999" user="082609" passwd="ruanbo1003">
+		</item>
+	</account>
+	<quote run="0">
+		<front addr="tcp://218.202.237.33:10012" comment="SimNow的接口" >
+		</front>
+	</quote>
+	<trader run="1">
+		<front addr="tcp://180.168.146.187:10001" comment="SimNow的接口" >
+		</front>
+	</trader>
+</root>

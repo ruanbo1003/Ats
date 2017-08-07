@@ -15,7 +15,7 @@ class AtsQuote : public CThostFtdcMdSpi
 private:
     CThostFtdcMdApi *_pUserApi;
     int _requestId;
-    bool _is_login;  // 是否已经登陆了
+    bool _is_login;  //
 
 public:
     AtsQuote(CThostFtdcMdApi *api);
@@ -48,10 +48,8 @@ public:
     void OnHeartBeatWarning(int nTimeLapse);
 
 private:
-    //显示回应信息
     void showRspInfo(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 private:
-    //查询所有合约
     void OnReqAllInstrument();
 };
 

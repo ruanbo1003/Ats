@@ -15,162 +15,165 @@
 #include "utils/TimeOp.hpp"
 #include "data/OrderMngr.hpp"
 #include "AtsMain/DbDriver/MysqlDb.hpp"
-
+#include "AtsMain/AtsConfig.hpp"
 
 enum AtsStatus
 {
-    ATS_Null = 0,
+	ATS_Null = 0,
 
-    ATS_Connected = 1,
-    ATS_Logined = 2,
-    ATS_Confirming = 3,
-    ATS_Confirmed = 4,
-    ATS_Stop = 5,
+	ATS_Connected = 1, ATS_Logined = 2, ATS_Confirming = 3, ATS_Confirmed = 4, ATS_Stop = 5,
 
-    ATS_End = 9999,
+	ATS_End = 9999,
 };
 
 typedef void (*FuncPtr)(void);
 
-class AtsTrader : public CThostFtdcTraderSpi
+class AtsTrader: public CThostFtdcTraderSpi
 {
 private:
-    string _broker_id;
-    string _investor_id;
-    string _passwd;
+	string _broker_id;
+	string _investor_id;
+	string _passwd;
 
-    CThostFtdcTraderApi* _pUserApi;
-    int _requestId;
+	CThostFtdcTraderApi* _pUserApi;
+	int _requestId;
 
-    AtsStatus _ats_status;
-    bool _is_stop;   // æ—¶å€™åœæ­¢è¿è¡Œ
-    string _front_addr;     // äº¤æ˜“å‰ç½®
+	AtsStatus _ats_status;
+	bool _is_stop;   // Ê±ºòÍ£Ö¹ÔËĞĞ
 
-    unsigned long int _run_secs;   // è¿è¡Œçš„ç§’æ•°
+	AtsConfigPtr _config;
 
-    string _settlement_path;  // ç»“ç®—ä¿¡æ¯æ–‡ä»¶æ ¹ç›®å½•
-    string _run_path; // å½“å‰è·¯å¾„
+	unsigned long int _run_secs;   // ÔËĞĞµÄÃëÊı
 
-    //æ—¶é—´æ“ä½œ
-    TimeOpPtr _time_op;
-    // ç»“ç®—å•logæ–‡ä»¶
-    FileOpPtr _settlement_f;
-    // ç¼–ç è½¬æ¢
-    CodeConvertPtr _cc;
-    // è®¢å•ç®¡ç†
-    OrderMngrPtr _order_mngr;
-    // MySqlæ•°æ®åº“
-    MysqlDbPtr _mysql;
+	string _settlement_path;  // ½áËãĞÅÏ¢ÎÄ¼ş¸ùÄ¿Â¼
+	string _run_path; // µ±Ç°Â·¾¶
 
-    map<int, std::function<void(void)>> _init_funcs;
+	//Ê±¼ä²Ù×÷
+	TimeOpPtr _time_op;
+	// ½áËãµ¥logÎÄ¼ş
+	FileOpPtr _settlement_f;
+	// ±àÂë×ª»»
+	CodeConvertPtr _cc;
+	// ¶©µ¥¹ÜÀí
+	OrderMngrPtr _order_mngr;
+	// MySqlÊı¾İ¿â
+	MysqlDbPtr _mysql;
+
+	map<int, std::function<void(void)>> _init_funcs;
 
 public:
-    AtsTrader(const string& front);
-    virtual ~AtsTrader();
+	AtsTrader(const AtsConfigPtr& config);
+	virtual ~AtsTrader();
 
 private:
-    void init_func();
-    void init_vals();
+	void init_func();
+	void init_vals();
 
-    void update_status(AtsStatus status);
-    AtsStatus status()const;
+	void update_status(AtsStatus status);
+	AtsStatus status() const;
 public:
-    // åˆå§‹åŒ–åŠè¿è¡Œï¼Œåœæ­¢æ¥å£
-    bool init();
+	// ³õÊ¼»¯¼°ÔËĞĞ£¬Í£Ö¹½Ó¿Ú
+	bool init();
 
-    bool uninit();
+	bool uninit();
 
-    bool run();
+	bool run();
 
-    bool stop();
+	bool stop();
 
-    bool is_stop()const;
+	bool is_stop() const;
 
 public:
-    void on_next_second();
-    void on_next_minute();
-    void on_next_hour();
+	void on_next_second();
+	void on_next_minute();
+	void on_next_hour();
 
 private:
-    void check_login();
+	void check_login();
 
-    void reqLogin();
+	void reqLogin();
 
-    void reqAuthenticate();
+	void reqAuthenticate();
 
-    void OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthenticateField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-
-public:
-    void OnFrontConnected();
-
-    void OnFrontDisconnected(int nReason);
-
-    void OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-
-    void OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-
-    bool is_login()const;
-
-    void reqLogout();
+	void OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthenticateField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 public:
-    /* ä¸ºäº†ä½¿æŠ•èµ„è€…åŠæ—¶å‡†ç¡®çš„äº†è§£è‡ªå·±çš„äº¤æ˜“çŠ¶å†µï¼Œå¦‚å¯ç”¨èµ„é‡‘ï¼ŒæŒä»“ï¼Œä¿è¯é‡‘å ç”¨ç­‰ï¼Œä»è€ŒåŠæ—¶äº†è§£è‡ªå·±çš„é£
-       é™©çŠ¶å†µï¼Œç»¼åˆäº¤æ˜“å¹³å°è¦æ±‚æŠ•èµ„è€…åœ¨æ¯ä¸€ä¸ªäº¤æ˜“æ—¥è¿›è¡Œäº¤æ˜“å‰éƒ½å¿…é¡»å¯¹å‰ä¸€äº¤æ˜“æ—¥çš„ç»“ç®—ç»“æœè¿›è¡Œç¡®è®¤ã€‚
-    */
-    void check_settlement();
+	void OnFrontConnected();
 
-    // æŸ¥è¯¢æŠ•èµ„è€…ç»“ç®—å•
-    void reqSettlementInfo();
-    void OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementInfo, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-    // ç¡®è®¤ç»“ç®—å•
-    void SettlementInfoConfirm();
-    void OnRspSettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-    // æŸ¥è¯¢ç»“ç®—å•ç¡®è®¤çš„æ—¥æœŸ
-    void reqSettlementInfoConfrm();
-    void OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+	void OnFrontDisconnected(int nReason);
 
-    void on_settlement_confirmed(bool directConfirm=false);
+	void OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+
+	void OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+
+	bool is_login() const;
+
+	void reqLogout();
 
 public:
-    //æŒä»“
-    void reqInvestorPosition();
-    void OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestorPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+	/* ÎªÁËÊ¹Í¶×ÊÕß¼°Ê±×¼È·µÄÁË½â×Ô¼ºµÄ½»Ò××´¿ö£¬Èç¿ÉÓÃ×Ê½ğ£¬³Ö²Ö£¬±£Ö¤½ğÕ¼ÓÃµÈ£¬´Ó¶ø¼°Ê±ÁË½â×Ô¼ºµÄ·ç
+	 ÏÕ×´¿ö£¬×ÛºÏ½»Ò×Æ½Ì¨ÒªÇóÍ¶×ÊÕßÔÚÃ¿Ò»¸ö½»Ò×ÈÕ½øĞĞ½»Ò×Ç°¶¼±ØĞë¶ÔÇ°Ò»½»Ò×ÈÕµÄ½áËã½á¹û½øĞĞÈ·ÈÏ¡£
+	 */
+	void check_settlement();
+
+	// ²éÑ¯Í¶×ÊÕß½áËãµ¥
+	void reqSettlementInfo();
+	void OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementInfo, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+	// È·ÈÏ½áËãµ¥
+	void SettlementInfoConfirm();
+	void OnRspSettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+	// ²éÑ¯½áËãµ¥È·ÈÏµÄÈÕÆÚ
+	void reqSettlementInfoConfrm();
+	void OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+
+	void on_settlement_confirmed(bool directConfirm = false);
 
 public:
-    //æŠ¥å•
-    void onOrderInsert();
-    void OnRtnOrder(CThostFtdcOrderField *pOrder);
-    //æŠ¥å•å½•å…¥è¯·æ±‚å“åº”
-    void OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-    //æŠ¥å•å½•å…¥é”™è¯¯å›æŠ¥
-    void OnErrRtnOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo);
-    //æˆäº¤é€šçŸ¥
-    void OnRtnTrade(CThostFtdcTradeField *pTrade);
-
-    //åˆ›å»ºä¸€ä¸ªæŠ¥å•
-    bool make_order();
+	//³Ö²Ö
+	void reqInvestorPosition();
+	void OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestorPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 public:
-    // åˆçº¦
-    void reqAllInstrument();
+	//±¨µ¥
+	void onOrderInsert();
+	//±£µ¥×´Ì¬
+	void OnRtnOrder(CThostFtdcOrderField *pOrder);
 
-    void OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+	//°üº¬´íÎóĞÅÏ¢µÄ±¨µ¥Â¼ÈëÇëÇóÏìÓ¦
+	void OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+	//±¨µ¥Â¼Èë´íÎó»Ø±¨,¡¡±¨µ¥±»ctp¾Ü¾øÊÇ·µ»Ø
+	void OnErrRtnOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo);
+	//´éºÏ³É¹¦Í¨Öª
+	void OnRtnTrade(CThostFtdcTradeField *pTrade);
 
+	//´´½¨Ò»¸ö±¨µ¥
+	bool make_order();
 
 public:
-    //ã€€èµ„é‡‘è´¦æˆ·
-    void reqTradingAccount();
-    void OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccount, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+	// ºÏÔ¼
+	void reqAllInstrument();
+
+	void OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+
+	//²éÑ¯ºÏÔ¼ÏêÇé
+	void reqOneDepthMarketData();
+
+	void OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+
+public:
+	//¡¡×Ê½ğÕË»§
+	void reqTradingAccount();
+	void OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccount, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 private:
-    //é”™è¯¯åº”ç­”
-    void OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+	//´íÎóÓ¦´ğ
+	void OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 private:
-    void showRspInfo(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+	void showRspInfo(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
-    //ç¼–ç è½¬æ¢ï¼ŒCodeConvert
-    const char* onCC(char* pSrc, size_t len=0);
+	//±àÂë×ª»»£¬CodeConvert
+	const char* onCC(char* pSrc, size_t len = 0);
 
 };
 

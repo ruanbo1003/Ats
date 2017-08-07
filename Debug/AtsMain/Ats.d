@@ -35,8 +35,10 @@ AtsMain/Ats.o: ../AtsMain/Ats.cpp /home/ruanbo/Codes/Ats/AtsMain/Ats.hpp \
  /usr/local/include/mysqlcppconn/include/cppconn/statement.h \
  /usr/local/include/mysqlcppconn/include/cppconn/metadata.h \
  /usr/local/include/mysqlcppconn/include/cppconn/warning.h \
+ /home/ruanbo/Codes/Ats/AtsMain/AtsConfig.hpp \
  /home/ruanbo/Codes/Ats/utils/IThread.hpp \
- /home/ruanbo/Codes/Ats/comm/Noncopyable.hpp
+ /home/ruanbo/Codes/Ats/comm/Noncopyable.hpp \
+ /home/ruanbo/Codes/Ats/AtsMain/AtsConfig.hpp
 
 /home/ruanbo/Codes/Ats/AtsMain/Ats.hpp:
 
@@ -112,6 +114,10 @@ AtsMain/Ats.o: ../AtsMain/Ats.cpp /home/ruanbo/Codes/Ats/AtsMain/Ats.hpp \
 
 /usr/local/include/mysqlcppconn/include/cppconn/warning.h:
 
+/home/ruanbo/Codes/Ats/AtsMain/AtsConfig.hpp:
+
 /home/ruanbo/Codes/Ats/utils/IThread.hpp:
 
 /home/ruanbo/Codes/Ats/comm/Noncopyable.hpp:
+
+/home/ruanbo/Codes/Ats/AtsMain/AtsConfig.hpp:

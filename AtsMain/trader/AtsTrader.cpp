@@ -9,11 +9,10 @@
 #include "comm/comm.hpp"
 #include "utils/utils.hpp"
 
-
-AtsTrader::AtsTrader(const string& front)
+AtsTrader::AtsTrader(const AtsConfigPtr& config)
 {
-    _front_addr = front;
-    init_vals();
+	_config = config;
+	init_vals();
 }
 
 AtsTrader::~AtsTrader()
@@ -27,138 +26,140 @@ void AtsTrader::init_func()
 //    _init_funcs[2] = reqTradingAccount;
 //    _init_funcs[3] = reqInvestorPosition;
 
-    _init_funcs[1] = std::bind(&AtsTrader::reqAllInstrument, this);
-    _init_funcs[2] = std::bind(&AtsTrader::reqTradingAccount, this);
-    _init_funcs[3] = std::bind(&AtsTrader::reqInvestorPosition, this);
+	_init_funcs[1] = std::bind(&AtsTrader::reqAllInstrument, this);
+	_init_funcs[2] = std::bind(&AtsTrader::reqTradingAccount, this);
+	_init_funcs[3] = std::bind(&AtsTrader::reqInvestorPosition, this);
+	_init_funcs[4] = std::bind(&AtsTrader::reqOneDepthMarketData, this);
+	_init_funcs[5] = std::bind(&AtsTrader::onOrderInsert, this);
 }
 void AtsTrader::init_vals()
 {
-    _broker_id = "";
-    _investor_id = "";
-    _passwd = "";
+	_broker_id = "";
+	_investor_id = "";
+	_passwd = "";
 
-    _pUserApi = NULL;
-    _requestId = 0;
+	_pUserApi = NULL;
+	_requestId = 0;
 
-    _ats_status = ATS_Null;
-    _is_stop = false;   // ç³»ç»Ÿå¼€å§‹è¿è¡Œï¼Œ
+	_ats_status = ATS_Null;
+	_is_stop = false;   // ÏµÍ³¿ªÊ¼ÔËÐÐ£¬
 
-    _run_secs = 0;
-    _settlement_path = "/home/ruanbo/Codes/Ats/AtsData/Settlement/";
-    _run_path = utils::get_path();
+	_run_secs = 0;
+	_settlement_path = "/home/ruanbo/Codes/Ats/AtsData/Settlement/";
+	_run_path = utils::get_path();
 
-    _time_op = TimeOpPtr(new TimeOp());
-    _cc = CodeConvertPtr(new CodeConvert("latin1", "utf-8"));
-    _order_mngr = OrderMngrPtr(new OrderMngr());
+	_time_op = TimeOpPtr(new TimeOp());
+	_cc = CodeConvertPtr(new CodeConvert("latin1", "utf-8"));
+	_order_mngr = OrderMngrPtr(new OrderMngr());
 
-    _mysql = MysqlDbPtr(new MysqlDb());
+	_mysql = MysqlDbPtr(new MysqlDb());
 
-    init_func();
+	init_func();
 }
 
 void AtsTrader::update_status(AtsStatus status)
 {
-    _ats_status = status;
+	_ats_status = status;
 }
-AtsStatus AtsTrader::status()const
+AtsStatus AtsTrader::status() const
 {
-    return _ats_status;
+	return _ats_status;
 }
 
-// åˆå§‹åŒ–åŠè¿è¡Œï¼Œåœæ­¢æŽ¥å£
+// ³õÊ¼»¯¼°ÔËÐÐ£¬Í£Ö¹½Ó¿Ú
 bool AtsTrader::init()
 {
-    if(_mysql->init() == false)
-    {
-        Log("MysqlDb init failed");
-        return false;
-    }
+	if(_mysql->init() == false)
+	{
+		Log("MysqlDb init failed");
+		return false;
+	}
 
-    _pUserApi = CThostFtdcTraderApi::CreateFtdcTraderApi("traderData/");
-    if(!_pUserApi)
-    {
-        LogError("åˆ›å»º TraderApiå‡ºé”™");
-        return false;
-    }
+	_pUserApi = CThostFtdcTraderApi::CreateFtdcTraderApi("traderData/");
+	if(!_pUserApi)
+	{
+		LogError("´´½¨ TraderApi³ö´í");
+		return false;
+	}
 
-    _broker_id = "9999";
-    _investor_id = "082609";
-    _passwd = "ruanbo1003";
+	_broker_id = "9999";
+	_investor_id = "082609";
+	_passwd = "ruanbo1003";
 
-    Log("AtsTrader init success");
+	Log("AtsTrader init success");
 
-    return true;
+	return true;
 }
 
 bool AtsTrader::uninit()
 {
-    Log("AtsTrader::uninit");
+	Log("AtsTrader::uninit");
 
 //    _pUserApi->RegisterFront(NULL);
-    _pUserApi->RegisterSpi(NULL);
+	_pUserApi->RegisterSpi(NULL);
 
-    _pUserApi->Release();
-    _pUserApi = NULL;
+	_pUserApi->Release();
+	_pUserApi = NULL;
 
-    return true;
+	return true;
 }
 
 bool AtsTrader::run()
 {
-    _pUserApi->RegisterSpi(this);
-    _pUserApi->RegisterFront((char*)_front_addr.data());
-    _pUserApi->SubscribePrivateTopic(THOST_TERT_QUICK);
-    _pUserApi->SubscribePublicTopic(THOST_TERT_QUICK);
+	_pUserApi->RegisterSpi(this);
+	_pUserApi->RegisterFront((char*) _config->_trader_front.data());
+	_pUserApi->SubscribePrivateTopic(THOST_TERT_QUICK);
+	_pUserApi->SubscribePublicTopic(THOST_TERT_QUICK);
 
-    _pUserApi->Init();
+	_pUserApi->Init();
 
-    Log("after trader api init");
+	Log("after trader api init");
 
-    return true;
+	return true;
 }
 
 bool AtsTrader::stop()
 {
-    Log("AtsTrader::stop");
+	Log("AtsTrader::stop");
 
-    _is_stop = true;
+	_is_stop = true;
 
-    uninit();
+	uninit();
 
-    return true;
+	return true;
 }
 
-bool AtsTrader::is_stop()const
+bool AtsTrader::is_stop() const
 {
-    return _is_stop;
+	return _is_stop;
 }
 
 void AtsTrader::on_next_second()
 {
-    check_login();
+	check_login();
 
-    check_settlement();
+	check_settlement();
 
-    if(status() < ATS_Confirmed)
-    {
-        return;
-    }
-    _run_secs++;
+	if(status() < ATS_Confirmed)
+	{
+		return;
+	}
+	_run_secs++;
 
-    Log("on_next_second:%ld, status:%d", _run_secs, _ats_status);
+//	Log("on_next_second:%ld, status:%d", _run_secs, _ats_status);
 
-    auto func_it = _init_funcs.find(_run_secs);
-    if(func_it != _init_funcs.end())
-    {
-        auto one_init_f = func_it->second;
-        one_init_f();
-    }
+	auto func_it = _init_funcs.find(_run_secs);
+	if(func_it != _init_funcs.end())
+	{
+		auto one_init_f = func_it->second;
+		one_init_f();
+	}
 
 }
 
 void AtsTrader::on_next_minute()
 {
-    Log("on_next_minute, status:%d", _ats_status);
+	Log("on_next_minute, status:%d", _ats_status);
 
 //    reqSettlementInfo();
 }
@@ -168,168 +169,167 @@ void AtsTrader::on_next_hour()
 
 }
 
-
 void AtsTrader::check_login()
 {
-    if(status() != ATS_Connected)
-    {
-        return;
-    }
+	if(status() != ATS_Connected)
+	{
+		return;
+	}
 
-    reqLogin();
+	reqLogin();
 }
 
 void AtsTrader::reqLogin()
 {
-    CThostFtdcReqUserLoginField req;
-    memset(&req, 0, sizeof(req));
-    strcpy(req.BrokerID, _broker_id.data());
-    strcpy(req.UserID, _investor_id.data());  // 18575651049
-    strcpy(req.Password, _passwd.data());
+	CThostFtdcReqUserLoginField req;
+	memset(&req, 0, sizeof(req));
+	strcpy(req.BrokerID, _broker_id.data());
+	strcpy(req.UserID, _investor_id.data());  //
+	strcpy(req.Password, _passwd.data());
 
-    int ret = _pUserApi->ReqUserLogin(&req, ++_requestId);
+	int ret = _pUserApi->ReqUserLogin(&req, ++_requestId);
 
-    if(ret == 0)
-    {
-        Log("send login request ok.\n");
-    }
-    else if(ret == -1)
-    {
-        LogError("send long request failed because of network");
-    }
-    else if(ret == -2)
-    {
-        LogError("send login request failed because of too many requests");
-    }
-    else if(ret == -3)
-    {
-        LogError("send login request failed because of too many requests per second");
-    }
-    else
-    {
-        LogError("send login request, Unknow return parameter");
-    }
+	if(ret == 0)
+	{
+		Log("send login request ok.\n");
+	}
+	else if(ret == -1)
+	{
+		LogError("send long request failed because of network");
+	}
+	else if(ret == -2)
+	{
+		LogError("send login request failed because of too many requests");
+	}
+	else if(ret == -3)
+	{
+		LogError("send login request failed because of too many requests per second");
+	}
+	else
+	{
+		LogError("send login request, Unknow return parameter");
+	}
 }
 
 void AtsTrader::reqAuthenticate()
 {
-    CThostFtdcReqAuthenticateField req;
-    memset(&req, 0, sizeof(CThostFtdcReqAuthenticateField));
+	CThostFtdcReqAuthenticateField req;
+	memset(&req, 0, sizeof(CThostFtdcReqAuthenticateField));
 
-    strcpy(req.BrokerID, _broker_id.data());
-    strcpy(req.UserID, _investor_id.data());
-    strcpy(req.UserProductInfo, "");
-    strcpy(req.AuthCode, "");
+	strcpy(req.BrokerID, _broker_id.data());
+	strcpy(req.UserID, _investor_id.data());
+	strcpy(req.UserProductInfo, "");
+	strcpy(req.AuthCode, "");
 
-    int ret = _pUserApi->ReqAuthenticate(&req, ++_requestId);
+	int ret = _pUserApi->ReqAuthenticate(&req, ++_requestId);
 
-    Log("AtsTrader::reqAuthenticate, ret:%d", ret);
+	Log("AtsTrader::reqAuthenticate, ret:%d", ret);
 }
 
 void AtsTrader::OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthenticateField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-    Log("AtsTrader::OnRspAuthenticate. ErrorId:%d, bIsLast:%d", pRspInfo->ErrorID, bIsLast);
-    if(pRspAuthenticateField)
-    {
-        Log("BrokerID:%s", pRspAuthenticateField->BrokerID);
-        Log("UserID:%s", pRspAuthenticateField->UserID);
-        Log("UserProductInfo:%s", pRspAuthenticateField->UserProductInfo);
-    }
+	Log("AtsTrader::OnRspAuthenticate. ErrorId:%d, bIsLast:%d", pRspInfo->ErrorID, bIsLast);
+	if(pRspAuthenticateField)
+	{
+		Log("BrokerID:%s", pRspAuthenticateField->BrokerID);
+		Log("UserID:%s", pRspAuthenticateField->UserID);
+		Log("UserProductInfo:%s", pRspAuthenticateField->UserProductInfo);
+	}
 
 }
 
 void AtsTrader::reqLogout()
 {
-    CThostFtdcUserLogoutField req;
-    memset(&req, 0, sizeof(CThostFtdcUserLogoutField));
+	CThostFtdcUserLogoutField req;
+	memset(&req, 0, sizeof(CThostFtdcUserLogoutField));
 
-    strcpy(req.BrokerID, _broker_id.data());
-    strcpy(req.UserID, _investor_id.data());   // 18575651049
+	strcpy(req.BrokerID, _broker_id.data());
+	strcpy(req.UserID, _investor_id.data());   //
 
-    int ret = _pUserApi->ReqUserLogout(&req, ++_requestId);
+	int ret = _pUserApi->ReqUserLogout(&req, ++_requestId);
 
-    Log("AtsTrader::reqLogout. ret:%d", ret);
+	Log("AtsTrader::reqLogout. ret:%d", ret);
 }
 
 void AtsTrader::OnFrontConnected()
 {
-    Log("AtsTrader::OnFrontConnected\n");
+	Log("AtsTrader::OnFrontConnected\n");
 
-    update_status(ATS_Connected);
+	update_status(ATS_Connected);
 
-    if(is_stop() == false)
-    {
+	if(is_stop() == false)
+	{
 //        reqAuthenticate();
-//        reqLogin();  è¿™é‡Œä¸åšç™»é™†æ“ä½œï¼Œè€Œæ˜¯æ”¾åœ¨å®šæ—¶å™¨é‡Œï¼Œé¿å…é‡å¤å‘é€ç™»é™†è¯·æ±‚
-    }
+//        reqLogin();  ÕâÀï²»×öµÇÂ½²Ù×÷£¬¶øÊÇ·ÅÔÚ¶¨Ê±Æ÷Àï£¬±ÜÃâÖØ¸´·¢ËÍµÇÂ½ÇëÇó
+	}
 
 }
 
 void AtsTrader::OnFrontDisconnected(int nReason)
 {
-    update_status(ATS_Null);
+	update_status(ATS_Null);
 
-    Log("AtsTrader::OnFrontDisconnected:%d", nReason);
+	Log("AtsTrader::OnFrontDisconnected:%d", nReason);
 
-    if(nReason == 0x1001)
-    {
-        Log("ç½‘ç»œè¯»å¤±è´¥");
-    }
-    else if(nReason == 0x1002)
-    {
-        Log("ç½‘ç»œå†™å¤±è´¥");
-    }
-    else if(nReason == 0x2001)
-    {
-        Log("æŽ¥æ”¶å¿ƒè·³è¶…æ—¶");
-    }
-    else if(nReason == 0x2002)
-    {
-        Log("å‘é€å¿ƒè·³å¤±è´¥");
-    }
-    else if(nReason == 0x2003)
-    {
-        Log("æ”¶åˆ°é”™è¯¯æŠ¥æ–‡");
-    }
-    else
-    {
-        Log("æœªçŸ¥åŽŸå› æ–­å¼€è¿žæŽ¥ã€‚")
-        LogError("æœªçŸ¥åŽŸå› æ–­å¼€è¿žæŽ¥ã€‚")
-    }
+	if(nReason == 0x1001)
+	{
+		Log("ÍøÂç¶ÁÊ§°Ü");
+	}
+	else if(nReason == 0x1002)
+	{
+		Log("ÍøÂçÐ´Ê§°Ü");
+	}
+	else if(nReason == 0x2001)
+	{
+		Log("½ÓÊÕÐÄÌø³¬Ê±");
+	}
+	else if(nReason == 0x2002)
+	{
+		Log("·¢ËÍÐÄÌøÊ§°Ü");
+	}
+	else if(nReason == 0x2003)
+	{
+		Log("ÊÕµ½´íÎó±¨ÎÄ");
+	}
+	else
+	{
+		Log("Î´ÖªÔ­Òò¶Ï¿ªÁ¬½Ó¡£")
+		LogError("Î´ÖªÔ­Òò¶Ï¿ªÁ¬½Ó¡£")
+	}
 }
 
 void AtsTrader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-    if(pRspUserLogin)
-    {
-        Log("TradingDay:%s", pRspUserLogin->TradingDay);
-        Log("LoginTime:%s", pRspUserLogin->LoginTime);
-        Log("BrokerID:%s", pRspUserLogin->BrokerID);
-        Log("UserID:%s", pRspUserLogin->UserID);
-        Log("SystemName:%s", pRspUserLogin->SystemName);
-        Log("FrontIDå‰ç½®ç¼–å·:%d", pRspUserLogin->FrontID);
-        Log("SessionIDä¼šè¯ç¼–å·:%d", pRspUserLogin->SessionID);
-        Log("MaxOrderRefæœ€å¤§æŠ¥å•ç¼–å·:%s", pRspUserLogin->MaxOrderRef);
-        Log("SHFETime:%s", pRspUserLogin->SHFETime);
-        Log("DCETime:%s", pRspUserLogin->DCETime);
-        Log("CZCETime:%s", pRspUserLogin->CZCETime);
-        Log("FFEXTime:%s", pRspUserLogin->FFEXTime);
-        Log("INETime:%s", pRspUserLogin->INETime);
-    }
+	if(pRspUserLogin)
+	{
+		Log("TradingDay:%s", pRspUserLogin->TradingDay);
+		Log("LoginTime:%s", pRspUserLogin->LoginTime);
+		Log("BrokerID:%s", pRspUserLogin->BrokerID);
+		Log("UserID:%s", pRspUserLogin->UserID);
+		Log("SystemName:%s", pRspUserLogin->SystemName);
+		Log("FrontIDÇ°ÖÃ±àºÅ:%d", pRspUserLogin->FrontID);
+		Log("SessionID»á»°±àºÅ:%d", pRspUserLogin->SessionID);
+		Log("MaxOrderRef×î´ó±¨µ¥±àºÅ:%s", pRspUserLogin->MaxOrderRef);
+		Log("SHFETime:%s", pRspUserLogin->SHFETime);
+		Log("DCETime:%s", pRspUserLogin->DCETime);
+		Log("CZCETime:%s", pRspUserLogin->CZCETime);
+		Log("FFEXTime:%s", pRspUserLogin->FFEXTime);
+		Log("INETime:%s", pRspUserLogin->INETime);
+	}
 
-    Log("AtsTrader::OnRspUserLogin, ErrorId:%d", pRspInfo->ErrorID);
+	Log("AtsTrader::OnRspUserLogin, ErrorId:%d", pRspInfo->ErrorID);
 
-    if(pRspInfo->ErrorID == 0 && bIsLast == true)
-    {
-        update_status(ATS_Logined);
+	if(pRspInfo->ErrorID == 0 && bIsLast == true)
+	{
+		update_status(ATS_Logined);
 
-        Log("Ats Trader Login success\n");
-    }
-    else
-    {
-        Log("Ats Trader Login failed\n");
-        return;
-    }
+		Log("Ats Trader Login success\n");
+	}
+	else
+	{
+		Log("Ats Trader Login failed\n");
+		return;
+	}
 
 //    reqSettlementInfo();
 //    loop();
@@ -339,36 +339,26 @@ void AtsTrader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThos
 
 void AtsTrader::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-    Log("AtsTrader::OnRspUserLogout. ErrorId:%d, bIsLast:%d", pRspInfo->ErrorID, bIsLast);
+	Log("AtsTrader::OnRspUserLogout. ErrorId:%d, bIsLast:%d", pRspInfo->ErrorID, bIsLast);
 
-    if(pRspInfo->ErrorID == 0 && bIsLast == true)
-    {
-        update_status(ATS_Connected);
-    }
+	if(pRspInfo->ErrorID == 0 && bIsLast == true)
+	{
+		update_status(ATS_Connected);
+	}
 }
 
-bool AtsTrader::is_login()const
+bool AtsTrader::is_login() const
 {
-    return (status() == ATS_Logined);
+	return (status() == ATS_Logined);
 }
 
-
-
-//é”™è¯¯åº”ç­”
+//´íÎóÓ¦´ð
 void AtsTrader::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-    Log("OnRspError é”™è¯¯åº”ç­”:[%d,%s], nRequestId:%d, bIsLast:%d\n", pRspInfo->ErrorID, onCC(pRspInfo->ErrorMsg), nRequestID, bIsLast);
+	Log("OnRspError ´íÎóÓ¦´ð:[%d,%s], nRequestId:%d, bIsLast:%d\n", pRspInfo->ErrorID, onCC(pRspInfo->ErrorMsg), nRequestID, bIsLast);
 }
 void AtsTrader::showRspInfo(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-    Log("ErrorID:%d, ErrorMsg:%s, nRequestID:%d, bIsLast:%d", pRspInfo->ErrorID, pRspInfo->ErrorMsg, nRequestID, bIsLast);
+	Log("ErrorID:%d, ErrorMsg:%s, nRequestID:%d, bIsLast:%d", pRspInfo->ErrorID, pRspInfo->ErrorMsg, nRequestID, bIsLast);
 }
-
-
-
-
-
-
-
-
 

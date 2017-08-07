@@ -11,6 +11,7 @@ RM := rm -rf
 -include utils/subdir.mk
 -include tests/subdir.mk
 -include comm/subdir.mk
+-include ThirdLib/TinyXml2/subdir.mk
 -include AtsMain/trader/data/subdir.mk
 -include AtsMain/trader/subdir.mk
 -include AtsMain/quote/subdir.mk

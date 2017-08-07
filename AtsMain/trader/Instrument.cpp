@@ -8,53 +8,94 @@
 #include <AtsMain/trader/AtsTrader.hpp>
 
 /*
- * åˆçº¦
+ * ºÏÔ¼
  */
-
 
 void AtsTrader::reqAllInstrument()
 {
-    CThostFtdcQryInstrumentField req;
-    memset(&req, 0, sizeof(req));
+	CThostFtdcQryInstrumentField req;
+	memset(&req, 0, sizeof(req));
 
-    int ret = _pUserApi->ReqQryInstrument(&req, ++_requestId);
-    if(ret == 0)
-    {
-        Log("è¯·æ±‚æ‰€æœ‰åˆçº¦ret ok");
-    }
+	int ret = _pUserApi->ReqQryInstrument(&req, ++_requestId);
+	if(ret == 0)
+	{
+		Log("ÇëÇóËùÓÐºÏÔ¼ret ok");
+	}
+	else
+	{
+		Log("ÇëÇóËùÓÐºÏÔ¼ret(%d) failed", ret);
+	}
 }
 
 void AtsTrader::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-    if(!pInstrument)
-    {
-        Log("OnRspQryInstrumentåˆçº¦ä¿¡æ¯null\n");
-        return;
-    }
+	if(!pInstrument)
+	{
+		Log("OnRspQryInstrumentºÏÔ¼ÐÅÏ¢null\n");
+		return;
+	}
 
-    Log("ä¸€ä¸ªåˆçº¦ä¿¡æ¯,åˆçº¦ä»£ç :%s", pInstrument->InstrumentID);
+//	Log("Ò»¸öºÏÔ¼ÐÅÏ¢,ºÏÔ¼´úÂë:%s", pInstrument->InstrumentID);
 
-    if(bIsLast)
-    {
-        Log("\n");
-    }
+	if(bIsLast)
+	{
+		Log("È«²¿ºÏÔ¼ÐÅÏ¢½áÊø\n");
+	}
 
 }
 
+//²éÑ¯ºÏÔ¼ÏêÇé
+void AtsTrader::reqOneDepthMarketData()
+{
+	CThostFtdcQryDepthMarketDataField req;
+	memset(&req, 0, sizeof(req));
+	strcpy(req.InstrumentID, "IF1712");
 
+	int ret = _pUserApi->ReqQryDepthMarketData(&req, ++_requestId);
+	if(ret == 0)
+	{
+		Log("²éÑ¯ºÏÔ¼ÏêÇéret ok");
+	}
+}
 
+void AtsTrader::OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
+{
+	if(!pDepthMarketData)
+	{
+		Log("OnRspQryDepthMarketDataºÏÔ¼ÏêÇé null\n");
+		return;
+	}
 
+	Log("ºÏÔ¼:%s ÏêÇé·µ»Ø", pDepthMarketData->InstrumentID);
+	Log("½»Ò×ÈÕ:%s", pDepthMarketData->TradingDay);
+	Log("½»Ò×Ëù´úÂë:%s", pDepthMarketData->ExchangeID);
+	Log("ºÏÔ¼ÔÚ½»Ò×ËùµÄ´úÂë:%s", pDepthMarketData->ExchangeInstID);
+	Log("×îÐÂ¼Û:%lf", pDepthMarketData->LastPrice);
+	Log("ÉÏ´Î½áËã¼Û:%lf", pDepthMarketData->PreSettlementPrice);
+	Log("×òÊÕÅÌ:%lf", pDepthMarketData->PreClosePrice);
+	Log("×ò³Ö²ÖÁ¿:%lf", pDepthMarketData->PreOpenInterest);
 
+	Log("½ñ¿ªÅÌ:%lf", pDepthMarketData->OpenPrice);
+	Log("×î¸ß¼Û:%lf", pDepthMarketData->HighestPrice);
+	Log("×îµÍ¼Û:%lf", pDepthMarketData->LowestPrice);
 
+	Log("ÊýÁ¿:%d", pDepthMarketData->Volume);
+	Log("³É½»½ð¶î:%lf", pDepthMarketData->Turnover);
+	Log("³Ö²ÖÁ¿:%lf", pDepthMarketData->OpenInterest);
 
+	Log("½ñÊÕÅÌ:%lf", pDepthMarketData->ClosePrice);
+	Log("±¾´Î½áËã¼Û:%lf", pDepthMarketData->SettlementPrice);
 
+	Log("×îºóÐÞ¸ÄÊ±¼ä:%s", pDepthMarketData->UpdateTime);
+	Log("×îºóÐÞ¸ÄºÁÃë:%d", pDepthMarketData->UpdateMillisec);
 
+	Log("µ±ÈÕ¾ù¼Û:%lf", pDepthMarketData->AveragePrice);
+	Log("ÒµÎñÈÕÆÚ:%s", pDepthMarketData->ActionDay);
 
+	if(bIsLast)
+	{
+		Log("ºÏÔ¼%sÏêÇéend=======\n\n", pDepthMarketData->InstrumentID);
+	}
 
-
-
-
-
-
-
+}
 

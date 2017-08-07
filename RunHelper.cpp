@@ -48,7 +48,7 @@ bool RunHelper::init()
 {
     if(system_init() == false)
     {
-        LogError("system_init出错");
+        LogError("system_init failed");
         return false;
     }
 

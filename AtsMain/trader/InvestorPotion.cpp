@@ -8,63 +8,53 @@
 #include <AtsMain/trader/AtsTrader.hpp>
 
 /*
- *  æŒä»“
+ *  ³Ö²Ö
  */
 
-
-// æŒä»“
+// ³Ö²Ö
 void AtsTrader::reqInvestorPosition()
 {
-    CThostFtdcQryInvestorPositionField req;
-    memset(&req, 0, sizeof(req));
-    strcpy(req.BrokerID, _broker_id.data());
-    strcpy(req.InvestorID, _investor_id.data());
+	CThostFtdcQryInvestorPositionField req;
+	memset(&req, 0, sizeof(req));
+	strcpy(req.BrokerID, _broker_id.data());
+	strcpy(req.InvestorID, _investor_id.data());
 //    strcpy(req.CurrencyID, "CNY");
 
-    int ret = _pUserApi->ReqQryInvestorPosition(&req, ++_requestId);
-    if(ret == 0)
-    {
-        Log("æŸ¥è¯¢æŠ•èµ„è€…æŒä»“ret ok");
-    }
-    else
-    {
-        Log("æŸ¥è¯¢æŠ•èµ„è€…æŒä»“ret(%d) failed", ret);
-    }
+	int ret = _pUserApi->ReqQryInvestorPosition(&req, ++_requestId);
+	if(ret == 0)
+	{
+		Log("²éÑ¯Í¶×ÊÕß³Ö²Öret ok");
+	}
+	else
+	{
+		Log("²éÑ¯Í¶×ÊÕß³Ö²Öret(%d) failed", ret);
+	}
 }
 
 void AtsTrader::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestorPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-    if(pRspInfo && pRspInfo->ErrorID != 0)
-    {
-        LogError("æŸ¥è¯¢æŠ•èµ„è€…æŒä»“ error(%d)", pRspInfo->ErrorID);
-        return;
-    }
+	if(pRspInfo && pRspInfo->ErrorID != 0)
+	{
+		LogError("²éÑ¯Í¶×ÊÕß³Ö²Ö error(%d)", pRspInfo->ErrorID);
+		return;
+	}
 
-    if(!pInvestorPosition)
-    {
-        Log("æŸ¥è¯¢æŠ•èµ„è€…æŒä»“è¿”å› null");
-        return;
-    }
+	if(!pInvestorPosition)
+	{
+		Log("²éÑ¯Í¶×ÊÕß³Ö²Ö·µ»Ø null\n");
+		return;
+	}
 
-    Log("æŸ¥è¯¢æŠ•èµ„è€…æŒä»“è¿”å›");
-    Log("åˆçº¦ä»£ç :%s", pInvestorPosition->InstrumentID);
-    Log("æŒä»“å¤šç©ºæ–¹å‘:%d", pInvestorPosition->PosiDirection);
-    Log("æŒä»“æ—¥æœŸ:%d", pInvestorPosition->PositionDate);
-    Log("æŒä»“æˆæœ¬:%lf", pInvestorPosition->PositionCost);
-    Log("æ‰‹ç»­è´¹:%lf", pInvestorPosition->Commission);
+	Log("²éÑ¯Í¶×ÊÕß³Ö²Ö·µ»Ø");
+	Log("ºÏÔ¼´úÂë:%s", pInvestorPosition->InstrumentID);
+	Log("³Ö²Ö¶à¿Õ·½Ïò:%d", pInvestorPosition->PosiDirection);
+	Log("³Ö²ÖÈÕÆÚ:%d", pInvestorPosition->PositionDate);
+	Log("³Ö²Ö³É±¾:%lf", pInvestorPosition->PositionCost);
+	Log("ÊÖĞø·Ñ:%lf", pInvestorPosition->Commission);
 
-    if(bIsLast)
-    {
-        Log("æŸ¥è¯¢æŠ•èµ„è€…æŒä»“ç»“æŸ=============\n");
-    }
+	if(bIsLast)
+	{
+		Log("²éÑ¯Í¶×ÊÕß³Ö²Ö½áÊø=============\n");
+	}
 }
-
-
-
-
-
-
-
-
-
 

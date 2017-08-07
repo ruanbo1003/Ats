@@ -13,11 +13,10 @@ Ats::Ats()
 {
     _md_api = NULL;
     _md_spi = NULL;
-    _md_front = "tcp://218.202.237.33:10012";  // SimNowçš„æ¥å£
 
     _trader_spi = NULL;
-//    _trader_front = "tcp://218.202.237.33:10002";  // SimNowçš„æ¥å£
-    _trader_front = "tcp://180.168.146.187:10001";
+
+    _config = tr1::shared_ptr<AtsConfig>(new AtsConfig("/home/ruanbo/Codes/Ats/Config/ats.xml"));
 
     set_tname("Ats main");
 }
@@ -53,7 +52,7 @@ bool Ats::quote_tests()
     _md_api = CThostFtdcMdApi::CreateFtdcMdApi("quoteData/", false);
     if(!_md_api)
     {
-        LogError("åˆ›å»ºMdApiå‡ºé”™");
+        LogError("´´½¨MdApi³ö´í");
         return false;
     }
 
@@ -62,14 +61,14 @@ bool Ats::quote_tests()
     _md_spi = new AtsQuote(_md_api);
 
     _md_api->RegisterSpi(_md_spi);
-    _md_api->RegisterFront((char*)_md_front.data());
+    _md_api->RegisterFront((char*)_config->_quote_front.data());
 
     return true;
 }
 
 bool Ats::trader_tests()
 {
-    _trader_spi = new AtsTrader(_trader_front);
+    _trader_spi = new AtsTrader(_config);
 
     if(_trader_spi->init() == false)
     {
@@ -106,7 +105,13 @@ void Ats::onLogout()
 
 bool Ats::init()
 {
-    if(false)
+	if(_config->read_config() == false)
+	{
+		Log("read config file failed");
+		return false;
+	}
+
+    if(_config->_quote_run)
     {
         if(quote_tests() == false)
         {
@@ -115,7 +120,7 @@ bool Ats::init()
         }
     }
 
-    if(true)
+    if(_config->_trader_run)
     {
         if(trader_tests() == false)
         {
@@ -139,7 +144,7 @@ void Ats::unit()
 
         while(_md_spi->is_login() == true)
         {
-            usleep(10000);   // å¾®ç§’
+            usleep(10000);   // Î¢Ãë
         }
     }
 

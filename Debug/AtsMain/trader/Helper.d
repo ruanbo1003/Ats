@@ -31,7 +31,8 @@ AtsMain/trader/Helper.o: ../AtsMain/trader/Helper.cpp \
  /usr/local/include/mysqlcppconn/include/cppconn/prepared_statement.h \
  /usr/local/include/mysqlcppconn/include/cppconn/statement.h \
  /usr/local/include/mysqlcppconn/include/cppconn/metadata.h \
- /usr/local/include/mysqlcppconn/include/cppconn/warning.h
+ /usr/local/include/mysqlcppconn/include/cppconn/warning.h \
+ /home/ruanbo/Codes/Ats/AtsMain/AtsConfig.hpp
 
 ../AtsMain/trader/AtsTrader.hpp:
 
@@ -100,3 +101,5 @@ AtsMain/trader/Helper.o: ../AtsMain/trader/Helper.cpp \
 /usr/local/include/mysqlcppconn/include/cppconn/metadata.h:
 
 /usr/local/include/mysqlcppconn/include/cppconn/warning.h:
+
+/home/ruanbo/Codes/Ats/AtsMain/AtsConfig.hpp:
