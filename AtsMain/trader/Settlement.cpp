@@ -47,7 +47,7 @@ void AtsTrader::reqSettlementInfo()
 	int ret = _pUserApi->ReqQrySettlementInfo(&req, ++_requestId);
 	if(ret == 0)
 	{
-		update_status(ATS_Confirming);
+		setstatus(ATS_Confirming);
 	}
 
 	Log("reqSettlementInfo 查询投资者结算单 ret:%d\n", ret);
@@ -163,7 +163,7 @@ void AtsTrader::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmFie
 
 void AtsTrader::on_settlement_confirmed(bool directConfirm)
 {
-	update_status(ATS_Confirmed);
+	setstatus(ATS_Confirmed);
 
 //    reqAllInstrument();
 //

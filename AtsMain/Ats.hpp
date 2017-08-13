@@ -18,8 +18,7 @@
 class Ats : public IThread
 {
 private:
-    CThostFtdcMdApi* _md_api;
-    AtsQuote* _md_spi;
+    AtsQuote* _quote_spi;
 
     AtsTrader* _trader_spi;
 

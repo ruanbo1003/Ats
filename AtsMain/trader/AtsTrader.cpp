@@ -9,10 +9,9 @@
 #include "comm/comm.hpp"
 #include "utils/utils.hpp"
 
-AtsTrader::AtsTrader(const AtsConfigPtr& config)
+AtsTrader::AtsTrader()
 {
-	_config = config;
-	init_vals();
+
 }
 
 AtsTrader::~AtsTrader()
@@ -42,7 +41,6 @@ void AtsTrader::init_vals()
 	_requestId = 0;
 
 	_ats_status = ATS_Null;
-	_is_stop = false;   // 系统开始运行，
 
 	_run_secs = 0;
 	_settlement_path = "/home/ruanbo/Codes/Ats/AtsData/Settlement/";
@@ -52,12 +50,12 @@ void AtsTrader::init_vals()
 	_cc = CodeConvertPtr(new CodeConvert("latin1", "utf-8"));
 	_order_mngr = OrderMngrPtr(new OrderMngr());
 
-	_mysql = MysqlDbPtr(new MysqlDb());
+	_mysql = MysqlDbPtr(new MysqlDb(_config->_mysql_addr, _config->_mysql_user, _config->_mysql_passwd));
 
 	init_func();
 }
 
-void AtsTrader::update_status(AtsStatus status)
+void AtsTrader::setstatus(AtsStatus status)
 {
 	_ats_status = status;
 }
@@ -67,8 +65,14 @@ AtsStatus AtsTrader::status() const
 }
 
 // 初始化及运行，停止接口
-bool AtsTrader::init()
+bool AtsTrader::init(const AtsConfigPtr& config)
 {
+	LogTid();
+
+	_config = config;
+
+	init_vals();
+
 	if(_mysql->init() == false)
 	{
 		Log("MysqlDb init failed");
@@ -93,7 +97,9 @@ bool AtsTrader::init()
 
 bool AtsTrader::uninit()
 {
-	Log("AtsTrader::uninit");
+//	Log("AtsTrader::uninit");
+
+	LogTid();
 
 //    _pUserApi->RegisterFront(NULL);
 	_pUserApi->RegisterSpi(NULL);
@@ -106,6 +112,8 @@ bool AtsTrader::uninit()
 
 bool AtsTrader::run()
 {
+	LogTid();
+
 	_pUserApi->RegisterSpi(this);
 	_pUserApi->RegisterFront((char*) _config->_trader_front.data());
 	_pUserApi->SubscribePrivateTopic(THOST_TERT_QUICK);
@@ -118,20 +126,30 @@ bool AtsTrader::run()
 	return true;
 }
 
+
 bool AtsTrader::stop()
 {
-	Log("AtsTrader::stop");
+//	Log("AtsTrader::stop");
 
-	_is_stop = true;
+	LogTid();
 
-	uninit();
+	if(ATS_Logined <= status() && status() <= ATS_Confirmed)
+	{
+		reqLogout();
+	}
 
 	return true;
 }
 
-bool AtsTrader::is_stop() const
+
+bool AtsTrader::can_quit() const
 {
-	return _is_stop;
+	return status() == ATS_Quit;
+}
+
+void AtsTrader::quit()
+{
+	uninit();
 }
 
 void AtsTrader::on_next_second()
@@ -155,11 +173,17 @@ void AtsTrader::on_next_second()
 		one_init_f();
 	}
 
+	if(_mysql && _mysql->isOk() == false)
+	{
+		_mysql->reconnect();
+	}
 }
 
 void AtsTrader::on_next_minute()
 {
 	Log("on_next_minute, status:%d", _ats_status);
+
+	LogTid();
 
 //    reqSettlementInfo();
 }
@@ -249,25 +273,36 @@ void AtsTrader::reqLogout()
 	int ret = _pUserApi->ReqUserLogout(&req, ++_requestId);
 
 	Log("AtsTrader::reqLogout. ret:%d", ret);
+	if(ret == 0)
+	{
+		setstatus(ATS_Stoping);
+	}
 }
 
 void AtsTrader::OnFrontConnected()
 {
+	LogTid();
+
 	Log("AtsTrader::OnFrontConnected\n");
 
-	update_status(ATS_Connected);
-
-	if(is_stop() == false)
+	if(status() == ATS_Stoping || status() == ATS_Quit)
 	{
-//        reqAuthenticate();
-//        reqLogin();  这里不做登陆操作，而是放在定时器里，避免重复发送登陆请求
+		return;
 	}
 
+	setstatus(ATS_Connected);
 }
 
 void AtsTrader::OnFrontDisconnected(int nReason)
 {
-	update_status(ATS_Null);
+	LogTid();
+
+	if(status() == ATS_Stoping || status() == ATS_Quit)
+	{
+		return;
+	}
+
+	setstatus(ATS_Null);
 
 	Log("AtsTrader::OnFrontDisconnected:%d", nReason);
 
@@ -321,7 +356,7 @@ void AtsTrader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThos
 
 	if(pRspInfo->ErrorID == 0 && bIsLast == true)
 	{
-		update_status(ATS_Logined);
+		setstatus(ATS_Logined);
 
 		Log("Ats Trader Login success\n");
 	}
@@ -343,7 +378,7 @@ void AtsTrader::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFt
 
 	if(pRspInfo->ErrorID == 0 && bIsLast == true)
 	{
-		update_status(ATS_Connected);
+		setstatus(ATS_Quit);
 	}
 }
 

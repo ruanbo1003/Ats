@@ -52,6 +52,8 @@ bool RunHelper::init()
         return false;
     }
 
+    Log("main thread id:%ld\n", gettid());
+
     if(_ats->init() == false)
     {
         LogError("Ats init failed");

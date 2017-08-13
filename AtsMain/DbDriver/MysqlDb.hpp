@@ -46,17 +46,22 @@ private:
 
     BufferPtr _buffer;
 
-    string _db_host;
-    string _passwd;
+    string _db_addr;
+    string _db_user;
+    string _db_passwd;
+
     string _db_name;
 
 public:
-    MysqlDb();
+    MysqlDb(const string& addr, const string& user, const string& passwd);
     virtual ~MysqlDb();
 
 public:
     bool init();
     void unit();
+
+    bool isOk();
+    void reconnect();
 
 private:
     bool init_sql();

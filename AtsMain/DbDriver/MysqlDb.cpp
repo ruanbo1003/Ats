@@ -9,13 +9,14 @@
 #include "utils/utils.hpp"
 #include <fstream>
 
-MysqlDb::MysqlDb() :
+MysqlDb::MysqlDb(const string& addr, const string& user, const string& passwd) :
 		_driver(nullptr)
 {
 	_buffer = BufferPtr(new Buffer());
 
-	_db_host = "";
-	_passwd = "";
+	_db_addr = addr;
+	_db_user = user;
+	_db_passwd = passwd;
 	_db_name = "";
 }
 
@@ -28,46 +29,69 @@ MysqlDb::~MysqlDb()
 
 bool MysqlDb::init()
 {
-	_driver = get_driver_instance();
-	if(!_driver)
-	{
-		LogError("MySql get_driver_instance() error");
+	try{
+		_driver = get_driver_instance();
+		if(!_driver)
+		{
+			LogError("MySql get_driver_instance() error");
+			return false;
+		}
+
+		sql::Connection* sqlconn = _driver->connect(_db_addr, _db_user, _db_passwd);
+		if(!sqlconn)
+		{
+			Log("mysql connect to db failed");
+			return false;
+		}
+
+		if(sqlconn->isClosed() == true)
+		{
+			Log("mysql is closed");
+			return false;
+		}
+
+		if(sqlconn->isValid() == false)
+		{
+			LogError("mysqlcppconn is not valid");
+			unit();
+			return false;
+		}
+		else
+		{
+			Log("mysql connect to db success");
+		}
+
+		_conn = MysqlConnPtr(sqlconn);
+		if(!_conn)
+		{
+			LogError("mysqlcppconn connect to mysql error");
+			unit();
+			return false;
+		}
+
+		_stmt = MysqlStatementPtr(_conn->createStatement());
+		if(!_stmt)
+		{
+			LogError("MySqlDb createStatement() error");
+			unit();
+			return false;
+		}
+
+		if(init_sql() == false)
+		{
+			unit();
+			return false;
+		}
+
+		_conn->setSchema("ctp");
+		_conn->setAutoCommit(true);
+
+		return true;
+	}
+	catch (sql::SQLException &e) {
+		LogError("Mysql exception:%s", e.what());
 		return false;
 	}
-
-	_conn = MysqlConnPtr(_driver->connect("127.0.0.1:3306", "root", "123456"));
-	if(!_conn)
-	{
-		LogError("mysqlcppconn connect to mysql error");
-		unit();
-		return false;
-	}
-
-	if(_conn->isValid() == false)
-	{
-		LogError("mysqlcppconn is not valid");
-		unit();
-		return false;
-	}
-
-	_stmt = MysqlStatementPtr(_conn->createStatement());
-	if(!_stmt)
-	{
-		LogError("MySqlDb createStatement() error");
-		unit();
-		return false;
-	}
-
-	if(init_sql() == false)
-	{
-		unit();
-		return false;
-	}
-
-	_conn->setSchema("ctp");
-	_conn->setAutoCommit(true);
-
-	return true;
 }
 
 void MysqlDb::unit()
@@ -81,6 +105,18 @@ void MysqlDb::unit()
 	{
 		_driver = nullptr;
 	}
+}
+
+bool MysqlDb::isOk()
+{
+	return _conn->isValid();
+}
+
+void MysqlDb::reconnect()
+{
+	bool ret = _conn->reconnect();
+
+	Log("reconnect ret:%d", ret);
 }
 
 bool MysqlDb::init_sql()
@@ -110,7 +146,7 @@ bool MysqlDb::init_sql()
 		ret = execute_sql(one_sql);
 		if(ret == false)
 		{
-			LogError("execute sql: \n%s error!!!!", one_sql.c_str());
+			LogError("init_sql: \n%s error!!!!", one_sql.c_str());
 			return false;
 		}
 		else
@@ -132,12 +168,12 @@ bool MysqlDb::execute_sql(const string& sql)
 	}
 	catch (sql::SQLException& e)
 	{
-		LogError("execute sql: \n%s \n SQLException:%s", sql.c_str(), e.what());
+		LogError("execute sql: \n%s \nSQLException:%s\n\n", sql.c_str(), e.what());
 		return false;
 	}
 	catch (std::exception& e)
 	{
-		LogError("execute sql: \n%s \n std::exception:%s", sql.c_str(), e.what());
+		LogError("execute sql: \n%s \n std::exception:%s\n\n", sql.c_str(), e.what());
 		return false;
 	}
 }

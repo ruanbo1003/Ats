@@ -4,19 +4,12 @@ main.o: ../main.cpp ../comm/Log.hpp ../RunHelper.hpp \
  /home/ruanbo/Codes/Ats/ctp/ThostFtdcMdApi.h \
  /home/ruanbo/Codes/Ats/ctp/ThostFtdcUserApiStruct.h \
  /home/ruanbo/Codes/Ats/ctp/ThostFtdcUserApiDataType.h \
- /home/ruanbo/Codes/Ats/AtsMain/trader/AtsTrader.hpp \
- /home/ruanbo/Codes/Ats/utils/TimeOp.hpp \
+ /home/ruanbo/Codes/Ats/AtsMain/DbDriver/MysqlDb.hpp \
  /home/ruanbo/Codes/Ats/comm/comm.hpp \
  /home/ruanbo/Codes/Ats/comm/Noncopyable.hpp \
  /home/ruanbo/Codes/Ats/comm/global.hpp \
  /home/ruanbo/Codes/Ats/comm/Log.hpp \
- /home/ruanbo/Codes/Ats/ctp/ThostFtdcTraderApi.h \
- /home/ruanbo/Codes/Ats/utils/FileOp.hpp \
- /home/ruanbo/Codes/Ats/utils/CodeConvert.hpp \
  /home/ruanbo/Codes/Ats/utils/Buffer.hpp \
- /home/ruanbo/Codes/Ats/AtsMain/trader/data/OrderMngr.hpp \
- /home/ruanbo/Codes/Ats/ctp/ThostFtdcUserApiStruct.h \
- /home/ruanbo/Codes/Ats/AtsMain/DbDriver/MysqlDb.hpp \
  /usr/local/include/mysqlcppconn/include/cppconn/driver.h \
  /usr/local/include/mysqlcppconn/include/cppconn/connection.h \
  /usr/local/include/mysqlcppconn/include/cppconn/build_config.h \
@@ -37,6 +30,13 @@ main.o: ../main.cpp ../comm/Log.hpp ../RunHelper.hpp \
  /usr/local/include/mysqlcppconn/include/cppconn/metadata.h \
  /usr/local/include/mysqlcppconn/include/cppconn/warning.h \
  /home/ruanbo/Codes/Ats/AtsMain/AtsConfig.hpp \
+ /home/ruanbo/Codes/Ats/AtsMain/trader/AtsTrader.hpp \
+ /home/ruanbo/Codes/Ats/utils/TimeOp.hpp \
+ /home/ruanbo/Codes/Ats/ctp/ThostFtdcTraderApi.h \
+ /home/ruanbo/Codes/Ats/utils/FileOp.hpp \
+ /home/ruanbo/Codes/Ats/utils/CodeConvert.hpp \
+ /home/ruanbo/Codes/Ats/AtsMain/trader/data/OrderMngr.hpp \
+ /home/ruanbo/Codes/Ats/ctp/ThostFtdcUserApiStruct.h \
  /home/ruanbo/Codes/Ats/utils/IThread.hpp \
  /home/ruanbo/Codes/Ats/comm/Noncopyable.hpp \
  /home/ruanbo/Codes/Ats/AtsMain/AtsConfig.hpp ../comm/comm.hpp \
@@ -56,9 +56,7 @@ main.o: ../main.cpp ../comm/Log.hpp ../RunHelper.hpp \
 
 /home/ruanbo/Codes/Ats/ctp/ThostFtdcUserApiDataType.h:
 
-/home/ruanbo/Codes/Ats/AtsMain/trader/AtsTrader.hpp:
-
-/home/ruanbo/Codes/Ats/utils/TimeOp.hpp:
+/home/ruanbo/Codes/Ats/AtsMain/DbDriver/MysqlDb.hpp:
 
 /home/ruanbo/Codes/Ats/comm/comm.hpp:
 
@@ -68,19 +66,7 @@ main.o: ../main.cpp ../comm/Log.hpp ../RunHelper.hpp \
 
 /home/ruanbo/Codes/Ats/comm/Log.hpp:
 
-/home/ruanbo/Codes/Ats/ctp/ThostFtdcTraderApi.h:
-
-/home/ruanbo/Codes/Ats/utils/FileOp.hpp:
-
-/home/ruanbo/Codes/Ats/utils/CodeConvert.hpp:
-
 /home/ruanbo/Codes/Ats/utils/Buffer.hpp:
-
-/home/ruanbo/Codes/Ats/AtsMain/trader/data/OrderMngr.hpp:
-
-/home/ruanbo/Codes/Ats/ctp/ThostFtdcUserApiStruct.h:
-
-/home/ruanbo/Codes/Ats/AtsMain/DbDriver/MysqlDb.hpp:
 
 /usr/local/include/mysqlcppconn/include/cppconn/driver.h:
 
@@ -121,6 +107,20 @@ main.o: ../main.cpp ../comm/Log.hpp ../RunHelper.hpp \
 /usr/local/include/mysqlcppconn/include/cppconn/warning.h:
 
 /home/ruanbo/Codes/Ats/AtsMain/AtsConfig.hpp:
+
+/home/ruanbo/Codes/Ats/AtsMain/trader/AtsTrader.hpp:
+
+/home/ruanbo/Codes/Ats/utils/TimeOp.hpp:
+
+/home/ruanbo/Codes/Ats/ctp/ThostFtdcTraderApi.h:
+
+/home/ruanbo/Codes/Ats/utils/FileOp.hpp:
+
+/home/ruanbo/Codes/Ats/utils/CodeConvert.hpp:
+
+/home/ruanbo/Codes/Ats/AtsMain/trader/data/OrderMngr.hpp:
+
+/home/ruanbo/Codes/Ats/ctp/ThostFtdcUserApiStruct.h:
 
 /home/ruanbo/Codes/Ats/utils/IThread.hpp:
 

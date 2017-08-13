@@ -11,13 +11,13 @@
 
 TimeOp::TimeOp()
 {
-    auto nowt = chrono::system_clock::now();
-    _last_ms = chrono::duration_cast<chrono::milliseconds>(nowt.time_since_epoch()).count();
-    _last_s = chrono::system_clock::to_time_t(nowt);
-    _last_tm = *std::localtime(&_last_s);
+	auto nowt = chrono::system_clock::now();
+	_last_ms = chrono::duration_cast < chrono::milliseconds > (nowt.time_since_epoch()).count();
+	_last_s = chrono::system_clock::to_time_t(nowt);
+	_last_tm = *std::localtime(&_last_s);
 
-    bzero(_datebuf, sizeof(_datebuf));
-    bzero(_timebuf, sizeof(_timebuf));
+	bzero(_datebuf, sizeof(_datebuf));
+	bzero(_timebuf, sizeof(_timebuf));
 }
 
 TimeOp::~TimeOp()
@@ -25,62 +25,61 @@ TimeOp::~TimeOp()
 
 }
 
-
 void TimeOp::onUpdate()
 {
-    auto nowt = chrono::system_clock::now();
-    _last_ms = chrono::duration_cast<chrono::milliseconds>(nowt.time_since_epoch()).count();
-    _last_s = chrono::system_clock::to_time_t(nowt);
-    _last_tm = *std::localtime(&_last_s);
+	auto nowt = chrono::system_clock::now();
+	_last_ms = chrono::duration_cast < chrono::milliseconds > (nowt.time_since_epoch()).count();
+	_last_s = chrono::system_clock::to_time_t(nowt);
+	_last_tm = *std::localtime(&_last_s);
 }
 
 TimerEventType TimeOp::update()
 {
-    auto nowt = chrono::system_clock::now();
-    long int cur_ms = chrono::duration_cast<chrono::milliseconds>(nowt.time_since_epoch()).count();
-    long int cur_s = chrono::system_clock::to_time_t(nowt);
-    std::tm cur_tm = *std::localtime(&cur_s);
+	auto nowt = chrono::system_clock::now();
+	long int cur_ms = chrono::duration_cast < chrono::milliseconds > (nowt.time_since_epoch()).count();
+	long int cur_s = chrono::system_clock::to_time_t(nowt);
+	std::tm cur_tm = *std::localtime(&cur_s);
 
-    TimerEventType ret = TET_Null;
+	TimerEventType ret = TET_Null;
 
-    bool need_update = false;
-    if(cur_tm.tm_sec != _last_tm.tm_sec)
-    {
-        need_update = true;
-        ret = TimerEventType(ret | TET_Second);
-    }
-    if(cur_tm.tm_min != _last_tm.tm_min)
-    {
-        need_update = true;
-        ret = TimerEventType(ret | TET_Minute);
-    }
-    if(cur_tm.tm_hour != _last_tm.tm_hour)
-    {
-        need_update = true;
-        ret = TimerEventType(ret | TET_Hour);
-    }
+	bool need_update = false;
+	if(cur_tm.tm_sec != _last_tm.tm_sec)
+	{
+		need_update = true;
+		ret = TimerEventType(ret | TET_Second);
+	}
+	if(cur_tm.tm_min != _last_tm.tm_min)
+	{
+		need_update = true;
+		ret = TimerEventType(ret | TET_Minute);
+	}
+	if(cur_tm.tm_hour != _last_tm.tm_hour)
+	{
+		need_update = true;
+		ret = TimerEventType(ret | TET_Hour);
+	}
 
-    if(need_update == true)
-    {
-        _last_tm = cur_tm;
-    }
+	if(need_update == true)
+	{
+		_last_tm = cur_tm;
+	}
 
-    if(cur_s - _last_s > 1)
-    {
-        Log("ÂÆöÊó∂Èó¥ÈöîË∂ÖËøá1Áßí„ÄÇ");
-    }
+	if(cur_s - _last_s > 1)
+	{
+		Log("∂® ±º‰∏Ù≥¨π˝1√Î°£");
+	}
 
-    _last_s = cur_s;
-    _last_ms = cur_ms;
+	_last_s = cur_s;
+	_last_ms = cur_ms;
 
-    return ret;
+	return ret;
 }
 
 std::pair<string, string> TimeOp::date_time()
 {
-    onUpdate();
+	onUpdate();
 
-    //GCC5 ÊâçÊîØÊåÅ std::put_time
+	//GCC5 ≤≈÷ß≥÷ std::put_time
 //    string fmt_date = "";
 //    string fmt_time = "";
 //
@@ -95,17 +94,17 @@ std::pair<string, string> TimeOp::date_time()
 //
 //    return make_pair(fmt_date, fmt_time);
 
-    bzero(_datebuf, sizeof(_datebuf));
-    strftime(_datebuf, sizeof(_datebuf), "%Y:%m:%d", &_last_tm);
-    bzero(_timebuf, sizeof(_timebuf));
-    strftime(_timebuf, sizeof(_timebuf), "%Y:%m:%d", &_last_tm);
+	bzero(_datebuf, sizeof(_datebuf));
+	strftime(_datebuf, sizeof(_datebuf), "%Y:%m:%d", &_last_tm);
+	bzero(_timebuf, sizeof(_timebuf));
+	strftime(_timebuf, sizeof(_timebuf), "%Y:%m:%d", &_last_tm);
 
-    return make_pair(_datebuf, _timebuf);
+	return make_pair(_datebuf, _timebuf);
 }
 
 string TimeOp::date()
 {
-    onUpdate();
+	onUpdate();
 
 //    string fmt_date = "";
 //    std::stringstream sst;
@@ -113,15 +112,24 @@ string TimeOp::date()
 //    fmt_date = sst.str();
 //    return fmt_date;
 
-    bzero(_datebuf, sizeof(_datebuf));
-    strftime(_datebuf, sizeof(_datebuf), "%Y:%m:%d", &_last_tm);
+	bzero(_datebuf, sizeof(_datebuf));
+	strftime(_datebuf, sizeof(_datebuf), "%Y:%m:%d", &_last_tm);
 
-    return _datebuf;
+	return _datebuf;
 }
 
-time_t TimeOp::nowt()const
+string TimeOp::nowdate()
 {
-    return (time_t)_last_s;
+	std::time_t now = time(NULL);
+	char buf[32] = { 0 };
+	std::strftime(buf, 32, "%Y%m%d", std::localtime(&now));
+
+	return buf;
+}
+
+time_t TimeOp::nowt() const
+{
+	return (time_t) _last_s;
 }
 
 string TimeOp::time2date(time_t t)
@@ -131,13 +139,10 @@ string TimeOp::time2date(time_t t)
 //    sst << std::put_time(&cur_tm ,"%Y:%m:%d");
 //    return sst.str();
 
-    std::tm cur_tm = *std::localtime(&t);
-    bzero(_timebuf, sizeof(_timebuf));
-    strftime(_timebuf, sizeof(_timebuf), "%Y:%m:%d", &cur_tm);
+	std::tm cur_tm = *std::localtime(&t);
+	bzero(_timebuf, sizeof(_timebuf));
+	strftime(_timebuf, sizeof(_timebuf), "%Y:%m:%d", &cur_tm);
 
-    return _timebuf;
+	return _timebuf;
 }
-
-
-
 

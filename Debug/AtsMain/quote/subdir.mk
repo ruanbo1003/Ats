@@ -4,13 +4,16 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../AtsMain/quote/AtsQuote.cpp 
+../AtsMain/quote/AtsQuote.cpp \
+../AtsMain/quote/Subscribe.cpp 
 
 OBJS += \
-./AtsMain/quote/AtsQuote.o 
+./AtsMain/quote/AtsQuote.o \
+./AtsMain/quote/Subscribe.o 
 
 CPP_DEPS += \
-./AtsMain/quote/AtsQuote.d 
+./AtsMain/quote/AtsQuote.d \
+./AtsMain/quote/Subscribe.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

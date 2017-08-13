@@ -13,11 +13,19 @@ void buffer_tests();
 
 void db_tests();
 
+void trader_test();
+
+void log_file_test();
+
 void test_entry()
 {
 //    buffer_tests();
 
-    db_tests();
+//    db_tests();
+
+//	trader_test();
+
+	log_file_test();
 
 }
 

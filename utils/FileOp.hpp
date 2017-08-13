@@ -32,6 +32,7 @@ public:
     void write(const string& data);
     void write(const char* data, int len=0);
 
+
     bool opened()const;
 
 

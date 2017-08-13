@@ -151,7 +151,7 @@ void IThread::timer_events()
 
     if(cur_s - _last_s > 1)
     {
-        Log("å®šæ—¶é—´éš”è¶…è¿‡1ç§’ã€‚");
+        Log("¶¨Ê±¼ä¸ô³¬¹ý1Ãë¡£");
     }
 
     _last_s = cur_s;

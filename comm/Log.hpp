@@ -16,6 +16,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include <sys/syscall.h>
+
 #define Log(...) { printf(__VA_ARGS__); printf("\n"); }
 #define LogError(...) { printf("ERROR:"); printf(__VA_ARGS__); printf("\n"); }
 
@@ -24,6 +26,7 @@
 #define LogFunc {printf("%s\n", __FUNCTION__);}
 #define LogFile {printf("%s\n", __FILE__);}
 
+#define LogTid() {printf("%s:%s[threadid:%ld] \n", __FILE__, __FUNCTION__, syscall(__NR_gettid)); };
 
 
 void LogDebug(const char* fmt, ...);

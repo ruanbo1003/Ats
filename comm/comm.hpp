@@ -18,6 +18,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include <sys/syscall.h>
+
 #include <iostream>
 
 #include "Noncopyable.hpp"
@@ -28,6 +30,9 @@ using namespace std;
 
 
 void stdcopy(char* dest, const char* src, size_t len);
+
+#define gettid() syscall(__NR_gettid)
+
 
 
 #endif /* COMM_COMM_HPP_ */

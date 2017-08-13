@@ -16,7 +16,7 @@ FileOp::FileOp(const string& file_name)
 //    _f = ofstream(file_name.c_str());
     create_dirctory(file_name);
 
-    _f.open(file_name.c_str(), ios::in|ios::out | ios::app);
+    _f.open(file_name.c_str(), ios::in | ios::out );  // | ios::app
     if(_f.is_open() == false)
     {
         Log("ofstream open file:%s failed, errorno:%d", file_name.data(), errno);
@@ -30,6 +30,7 @@ FileOp::FileOp(const string& file_name)
 
 FileOp::~FileOp()
 {
+	_f.flush();
     _f.close();
 }
 

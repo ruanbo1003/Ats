@@ -27,11 +27,25 @@ public:
 public:
     bool init()
     {
-        _pdb = MysqlDbPtr(new MysqlDb());
+        _pdb = MysqlDbPtr(new MysqlDb("127.0.0.1:3306", "root", "123456"));
         if(_pdb->init() == false)
         {
             Log("MysqlDb init failed");
             return false;
+        }
+
+        int i = 0;
+        while(i <= 10)
+        {
+        	sleep(1);
+        	i++;
+
+        	Log("db ok:%d", _pdb->isOk());
+
+        	if(_pdb->isOk() == false)
+        	{
+        		_pdb->reconnect();
+        	}
         }
 
         return true;
@@ -86,9 +100,9 @@ void db_tests()
     {
         return;
     }
-    db.db_c_test();
+//    db.db_c_test();
 
-    db.db_r_test();
+//    db.db_r_test();
 
 }
 

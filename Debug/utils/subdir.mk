@@ -4,6 +4,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../utils/AtsLog.cpp \
 ../utils/Buffer.cpp \
 ../utils/CodeConvert.cpp \
 ../utils/FileOp.cpp \
@@ -13,6 +14,7 @@ CPP_SRCS += \
 ../utils/utils.cpp 
 
 OBJS += \
+./utils/AtsLog.o \
 ./utils/Buffer.o \
 ./utils/CodeConvert.o \
 ./utils/FileOp.o \
@@ -22,6 +24,7 @@ OBJS += \
 ./utils/utils.o 
 
 CPP_DEPS += \
+./utils/AtsLog.d \
 ./utils/Buffer.d \
 ./utils/CodeConvert.d \
 ./utils/FileOp.d \

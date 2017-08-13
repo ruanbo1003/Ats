@@ -21,7 +21,12 @@ enum AtsStatus
 {
 	ATS_Null = 0,
 
-	ATS_Connected = 1, ATS_Logined = 2, ATS_Confirming = 3, ATS_Confirmed = 4, ATS_Stop = 5,
+	ATS_Connected = 1,
+	ATS_Logined = 2,
+	ATS_Confirming = 3,
+	ATS_Confirmed = 4,
+	ATS_Stoping = 5,
+	ATS_Quit = 6,
 
 	ATS_End = 9999,
 };
@@ -39,7 +44,6 @@ private:
 	int _requestId;
 
 	AtsStatus _ats_status;
-	bool _is_stop;   // 时候停止运行
 
 	AtsConfigPtr _config;
 
@@ -62,18 +66,19 @@ private:
 	map<int, std::function<void(void)>> _init_funcs;
 
 public:
-	AtsTrader(const AtsConfigPtr& config);
+	AtsTrader();
 	virtual ~AtsTrader();
 
 private:
 	void init_func();
 	void init_vals();
 
-	void update_status(AtsStatus status);
+	void setstatus(AtsStatus status);
 	AtsStatus status() const;
+
 public:
 	// 初始化及运行，停止接口
-	bool init();
+	bool init(const AtsConfigPtr& config);
 
 	bool uninit();
 
@@ -81,7 +86,9 @@ public:
 
 	bool stop();
 
-	bool is_stop() const;
+	bool can_quit()const;
+
+	void quit();
 
 public:
 	void on_next_second();

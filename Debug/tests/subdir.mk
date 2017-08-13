@@ -5,15 +5,24 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../tests/BufferTest.cpp \
-../tests/DbTest.cpp 
+../tests/DbTest.cpp \
+../tests/LogFile.cpp \
+../tests/QuoteTest.cpp \
+../tests/TraderTest.cpp 
 
 OBJS += \
 ./tests/BufferTest.o \
-./tests/DbTest.o 
+./tests/DbTest.o \
+./tests/LogFile.o \
+./tests/QuoteTest.o \
+./tests/TraderTest.o 
 
 CPP_DEPS += \
 ./tests/BufferTest.d \
-./tests/DbTest.d 
+./tests/DbTest.d \
+./tests/LogFile.d \
+./tests/QuoteTest.d \
+./tests/TraderTest.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

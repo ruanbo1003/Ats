@@ -21,7 +21,6 @@ enum TimerEventType{
 class TimeOp : public NonCopyable
 {
 private:
-    //定时器变量
     long int _last_ms;
     long int _last_s;
     std::tm _last_tm;
@@ -42,6 +41,8 @@ public:
     std::pair<string, string> date_time();
 
     string date();
+
+    static string nowdate();
 
     time_t nowt()const;
 

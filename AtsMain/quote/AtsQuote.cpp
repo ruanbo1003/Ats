@@ -8,9 +8,9 @@
 #include <AtsMain/quote/AtsQuote.hpp>
 #include "comm/comm.hpp"
 
-AtsQuote::AtsQuote(CThostFtdcMdApi *api)
+AtsQuote::AtsQuote()
 {
-    _pUserApi = api;
+    _pUserApi = NULL;
     _requestId = 0;
     _is_login = false;
 
@@ -21,12 +21,63 @@ AtsQuote::~AtsQuote()
 {
 }
 
+
+bool AtsQuote::init(const AtsConfigPtr& config)
+{
+	_config = config;
+
+	_pUserApi = CThostFtdcMdApi::CreateFtdcMdApi("quoteData/", false);
+    if(!_pUserApi)
+    {
+        LogError("创建MdApi出错");
+        return false;
+    }
+
+    _pUserApi->RegisterSpi(this);
+
+    Log("quote front:%s", _config->_quote_front.data());
+
+    _pUserApi->RegisterFront((char*)_config->_quote_front.data());
+    _pUserApi->Init();
+
+	return true;
+}
+
+void AtsQuote::unit()
+{
+	Log("AtsQuote::unit thread id:%ld\n", gettid());
+
+	_pUserApi->RegisterSpi(NULL);
+	_pUserApi->Release();
+	_pUserApi = NULL;
+}
+
+void AtsQuote::run()
+{
+//	sleep(30);
+//	OnReqAllInstrument();
+}
+
+void AtsQuote::stop()
+{
+	unit();
+}
+
 void AtsQuote::OnFrontConnected()
 {
     Log("AtsQuote::OnFrontConnected");
 
-    ReqUserLogin();
+    Log("AtsQuote thread id:%ld\n", gettid());
+
+//    ReqUserLogin();
 }
+
+void AtsQuote::OnFrontDisconnected(int nReason)
+{
+    LogFunc;
+}
+
+
 
 void AtsQuote::ReqUserLogin()
 {
@@ -39,6 +90,43 @@ void AtsQuote::ReqUserLogin()
     int ret = _pUserApi->ReqUserLogin(&req, ++_requestId);
 
     Log("ReqUserLogin ret:%d", ret);
+}
+
+void AtsQuote::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
+{
+    LogFunc;
+
+    if(pRspInfo && pRspInfo->ErrorID != 0)
+    {
+        Log("ctp trader user login failed, ErrorId:%d.\n", pRspInfo->ErrorID);
+        _is_login = true;
+    }
+
+    if(pRspUserLogin)
+    {
+        Log("TradingDay:%s", pRspUserLogin->TradingDay);
+        Log("LoginTime:%s", pRspUserLogin->LoginTime);
+        Log("BrokerID:%s", pRspUserLogin->BrokerID);
+        Log("UserID:%s", pRspUserLogin->UserID);
+        Log("SystemName:%s", pRspUserLogin->SystemName);
+        Log("FrontID:%d", pRspUserLogin->FrontID);
+        Log("SessionID:%d", pRspUserLogin->SessionID);
+        Log("MaxOrderRef:%s", pRspUserLogin->MaxOrderRef);
+        Log("SHFETime:%s", pRspUserLogin->SHFETime);
+        Log("DCETime:%s", pRspUserLogin->DCETime);
+        Log("CZCETime:%s", pRspUserLogin->CZCETime);
+        Log("FFEXTime:%s", pRspUserLogin->FFEXTime);
+        Log("INETime:%s", pRspUserLogin->INETime);
+    }
+
+    Log("nRequestID:%d", nRequestID);
+    Log("bIsLast:%d", bIsLast);
+
+    if(pRspInfo && pRspInfo->ErrorID == 0)
+    {
+        Log("ctp trader user login success.\n");
+        _is_login = true;
+    }
 }
 
 void AtsQuote::ReqUserLogout()
@@ -61,54 +149,17 @@ void AtsQuote::ReqUserLogout()
     Log("AtsQuote::ReqUserLogout, ret:%d", ret);
 }
 
-void AtsQuote::OnFrontDisconnected(int nReason)
-{
-    LogFunc;
-}
-
-void AtsQuote::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
-    LogFunc;
-
-    if(pRspUserLogin)
-    {
-        Log("TradingDay:%s", pRspUserLogin->TradingDay);
-        Log("LoginTime:%s", pRspUserLogin->LoginTime);
-        Log("BrokerID:%s", pRspUserLogin->BrokerID);
-        Log("UserID:%s", pRspUserLogin->UserID);
-        Log("SystemName:%s", pRspUserLogin->SystemName);
-        Log("FrontID:%d", pRspUserLogin->FrontID);
-        Log("SessionID:%d", pRspUserLogin->SessionID);
-        Log("MaxOrderRef:%s", pRspUserLogin->MaxOrderRef);
-        Log("SHFETime:%s", pRspUserLogin->SHFETime);
-        Log("DCETime:%s", pRspUserLogin->DCETime);
-        Log("CZCETime:%s", pRspUserLogin->CZCETime);
-        Log("FFEXTime:%s", pRspUserLogin->FFEXTime);
-        Log("INETime:%s", pRspUserLogin->INETime);
-    }
-
-    if(pRspInfo)
-    {
-        Log("ErrorID:%d", pRspInfo->ErrorID);
-//        Log("ErrorMsg:%s", pRspInfo->ErrorMsg);
-        std::cout << "ErrorMsg:" << pRspInfo->ErrorMsg << std::endl;
-    }
-
-    Log("nRequestID:%d", nRequestID);
-    Log("bIsLast:%d", bIsLast);
-
-    if(pRspInfo && pRspInfo->ErrorID == 0)
-    {
-        Log("ctp trader user login success.\n");
-        _is_login = true;
-        OnReqAllInstrument();
-    }
-}
-
 void AtsQuote::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
+    if(pRspInfo && pRspInfo->ErrorID != 0)
+    {
+    	Log("AtsQuote Logout返回错误，ErrorId:%d \n", pRspInfo->ErrorID);
+    	return;
+    }
+
+    Log("AtsQuote Logout successed");
+
     _is_login = false;
-    LogFunc;
 }
 
 bool AtsQuote::is_login()const
@@ -116,23 +167,6 @@ bool AtsQuote::is_login()const
     return _is_login;
 }
 
-void AtsQuote::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
-    LogLine("OnRspSubMarketData ");
-    showRspInfo(pRspInfo, nRequestID, bIsLast);
-
-    Log("合约id：%s", pSpecificInstrument->InstrumentID);
-}
-
-void AtsQuote::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
-    LogFunc;
-}
-
-void AtsQuote::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
-{
-    Log("AtsQuote::OnRtnDepthMarketData:%s", pDepthMarketData->InstrumentID);
-}
 
 void AtsQuote::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
@@ -149,28 +183,7 @@ void AtsQuote::showRspInfo(CThostFtdcRspInfoField *pRspInfo, int nRequestID, boo
     Log("ErrorID:%d, ErrorMsg:%s, nRequestID:%d, bIsLast:%d", pRspInfo->ErrorID, pRspInfo->ErrorMsg, nRequestID, bIsLast);
 }
 
-void AtsQuote::OnReqAllInstrument()
-{
-    int nCount = 1;
-    char* instrumentIds[nCount];
 
-    for(int i=0; i<nCount; ++i)
-    {
-        instrumentIds[i] = new char[32];
-        memset(instrumentIds[i], 0, 32);
-        strcpy(instrumentIds[i], "IF1709");
-    }
-
-    int ret = _pUserApi->SubscribeMarketData(instrumentIds, 1);
-
-    Log("OnReqAllInstrument ret:%d", ret);
-
-    for(int i=0; i<nCount; ++i)
-    {
-        delete[] instrumentIds[i];
-    }
-
-}
 
 
 

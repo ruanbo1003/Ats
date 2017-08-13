@@ -25,6 +25,10 @@ public:
 	bool _trader_run;
 	string _trader_front;
 
+	string _mysql_addr;
+	string _mysql_user;
+	string _mysql_passwd;
+
 public:
 	AtsConfig(const string& file);
 	virtual ~AtsConfig();

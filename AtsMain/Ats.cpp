@@ -11,9 +11,7 @@
 
 Ats::Ats()
 {
-    _md_api = NULL;
-    _md_spi = NULL;
-
+    _quote_spi = NULL;
     _trader_spi = NULL;
 
     _config = tr1::shared_ptr<AtsConfig>(new AtsConfig("/home/ruanbo/Codes/Ats/Config/ats.xml"));
@@ -40,7 +38,7 @@ void Ats::on_next_second()
 }
 void Ats::on_next_minute()
 {
-
+	LogTid();
 }
 void Ats::on_next_hour()
 {
@@ -49,28 +47,25 @@ void Ats::on_next_hour()
 
 bool Ats::quote_tests()
 {
-    _md_api = CThostFtdcMdApi::CreateFtdcMdApi("quoteData/", false);
-    if(!_md_api)
+	Log("quote test");
+
+    _quote_spi = new AtsQuote();
+    if(_quote_spi->init(_config) == false)
     {
-        LogError("´´½¨MdApi³ö´í");
-        return false;
+    	LogError("AtsQuote::init failed");
+    	return false;
     }
-
-    Log("MdApi version:%s", _md_api->GetApiVersion());
-
-    _md_spi = new AtsQuote(_md_api);
-
-    _md_api->RegisterSpi(_md_spi);
-    _md_api->RegisterFront((char*)_config->_quote_front.data());
 
     return true;
 }
 
 bool Ats::trader_tests()
 {
-    _trader_spi = new AtsTrader(_config);
+	Log("trader test");
 
-    if(_trader_spi->init() == false)
+    _trader_spi = new AtsTrader();
+
+    if(_trader_spi->init(_config) == false)
     {
         LogError("AtsTrader::init failed");
         return false;
@@ -81,11 +76,6 @@ bool Ats::trader_tests()
 
 void Ats::onLogout()
 {
-    if(_md_spi)
-    {
-
-    }
-
     if(_trader_spi)
     {
         while(true)
@@ -105,6 +95,8 @@ void Ats::onLogout()
 
 bool Ats::init()
 {
+	Log("Ats class thread id:%ld\n", gettid());
+
 	if(_config->read_config() == false)
 	{
 		Log("read config file failed");
@@ -134,39 +126,50 @@ bool Ats::init()
 
 void Ats::unit()
 {
-    Log("Ats::unit()");
+//    Log("Ats::unit()");
 
-    onLogout();
+    LogTid();
 
-    if(_md_api)
+//    onLogout();
+//
+//    if(_quote_spi)
+//    {
+//        _quote_spi->ReqUserLogout();
+//
+//        while(_quote_spi->is_login() == true)
+//        {
+//            usleep(10000);   // Î¢Ãë
+//        }
+//    }
+
+    if(_quote_spi)
     {
-        _md_spi->ReqUserLogout();
+    	_quote_spi->stop();
 
-        while(_md_spi->is_login() == true)
+    	delete _quote_spi;
+    	_quote_spi = NULL;
+    }
+
+    while(true)
+    {
+        if(_trader_spi)
         {
-            usleep(10000);   // Î¢Ãë
+            if(_trader_spi->can_quit() == false)
+            {
+            	_trader_spi->stop();
+            	sleep(1);
+            	continue;
+            }
+
+            _trader_spi->quit();
+
+            delete _trader_spi;
+            _trader_spi = NULL;
+
+            break;
         }
     }
 
-    if(_md_api)
-    {
-        _md_api->RegisterSpi(NULL);
-
-        delete _md_spi;
-        _md_spi = NULL;
-
-        _md_api->Release();
-//        _md_api->Join();
-        _md_api = NULL;
-    }
-
-    if(_trader_spi)
-    {
-        _trader_spi->stop();
-
-        delete _trader_spi;
-        _trader_spi = NULL;
-    }
 
     return;
 }
@@ -174,9 +177,11 @@ void Ats::unit()
 
 void Ats::run()
 {
-    if(_md_api)
+	LogTid();
+
+    if(_quote_spi)
     {
-        _md_api->Init();
+        _quote_spi->run();
     }
 
     if(_trader_spi)

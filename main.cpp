@@ -17,10 +17,11 @@ int main(int argc, const char *argv[])
     {
         test_entry();
 
-        Log("\n end of main tests===");
+        Log("\nend of main tests===");
         return 0;
     }
 
+    LogTid();
 
     RunHelperPtr pRun = RunHelperPtr(new RunHelper());
     if(pRun->init() == false)

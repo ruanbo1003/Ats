@@ -23,6 +23,10 @@ AtsConfig::AtsConfig(const string& file)
 
 	_trader_run = false;
 	_trader_front = "";
+
+	_mysql_addr = "";
+	_mysql_user = "";
+	_mysql_passwd = "";
 }
 
 AtsConfig::~AtsConfig()
@@ -93,6 +97,44 @@ bool AtsConfig::read_config()
 			return false;
 		}
 
+	}
+
+	// ---------- mysql config -----------
+	{
+		const XMLElement* mysql = root->FirstChildElement("mysql");
+		if(!mysql)
+		{
+			Log("config file has no mysql configed");
+			return false;
+		}
+
+		if(mysql->FindAttribute("addr"))
+		{
+			_mysql_addr = mysql->Attribute("addr");
+		}
+		else
+		{
+			Log("mysql addr not found");
+			return false;
+		}
+		if(mysql->FindAttribute("user"))
+		{
+			_mysql_user = mysql->Attribute("user");
+		}
+		else
+		{
+			Log("mysql user not found");
+			return false;
+		}
+		if(mysql->FindAttribute("passwd"))
+		{
+			_mysql_passwd = mysql->Attribute("passwd");
+		}
+		else
+		{
+			Log("mysql passwd not found");
+			return false;
+		}
 	}
 
 	// ---------- quote config -----------
