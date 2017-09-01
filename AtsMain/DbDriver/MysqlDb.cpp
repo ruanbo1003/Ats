@@ -29,7 +29,8 @@ MysqlDb::~MysqlDb()
 
 bool MysqlDb::init()
 {
-	try{
+	try
+	{
 		_driver = get_driver_instance();
 		if(!_driver)
 		{
@@ -88,7 +89,8 @@ bool MysqlDb::init()
 
 		return true;
 	}
-	catch (sql::SQLException &e) {
+	catch (sql::SQLException &e)
+	{
 		LogError("Mysql exception:%s", e.what());
 		return false;
 	}
@@ -299,5 +301,73 @@ bool MysqlDb::is_settlement_confirmed(const string& date)
 	res->next();
 
 	return (res->getInt("time") > 0);
+}
+
+bool MysqlDb::tick_data(const CThostFtdcDepthMarketDataField* tick)
+{
+	Log("MysqlDb::tick_data");
+
+	static string tick_pat =
+	        "Insert Into TickData(tradeday,updateTime,updateMs,InstrumentId,lastPrice, \
+		preSettlePrice,preClosePrice,preOpenInterest,openPrice,highestPrice,lowestPrice,volume,turnover,    \
+		openInterest,closePrice,settlePrice,upperLimitPrice,lowerLimitPrice,preDelta,currDelta,             \
+		bidP1,bitV1,askP1,askV1,bidP2,bitV2,askP2,askV2,bidP3,bitV3,askP3,askV3,bidP4,bitV4,askP4,askV4,bidP5,bitV5,askP5,askV5) \
+		Values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+	_pstmt = MysqlPreStatePtr(_conn->prepareStatement(tick_pat));
+
+	Log("MysqlDb::tick_data 1");
+
+	_pstmt->setString(1, tick->TradingDay);
+	_pstmt->setString(2, tick->UpdateTime);
+	_pstmt->setInt(3, tick->UpdateMillisec);
+	_pstmt->setString(4, tick->InstrumentID);
+	_pstmt->setDouble(5, tick->LastPrice);
+	_pstmt->setDouble(6, tick->PreSettlementPrice);
+	_pstmt->setDouble(7, tick->PreClosePrice);
+	_pstmt->setDouble(8, tick->PreOpenInterest);
+	_pstmt->setDouble(9, tick->OpenPrice);
+	_pstmt->setDouble(10, tick->HighestPrice);
+	_pstmt->setDouble(11, tick->LowestPrice);
+	_pstmt->setInt(12, tick->Volume);
+	_pstmt->setDouble(13, tick->Turnover);
+	_pstmt->setDouble(14, tick->OpenInterest);
+	_pstmt->setDouble(15, tick->ClosePrice);
+	_pstmt->setDouble(16, tick->SettlementPrice);
+	_pstmt->setDouble(17, tick->UpperLimitPrice);
+	_pstmt->setDouble(18, tick->LowerLimitPrice);
+	_pstmt->setDouble(19, tick->PreDelta);
+	_pstmt->setDouble(20, tick->CurrDelta);
+
+	_pstmt->setDouble(21, tick->BidPrice1);
+	_pstmt->setInt(22, tick->BidVolume1);
+	_pstmt->setDouble(23, tick->AskPrice1);
+	_pstmt->setInt(24, tick->AskVolume1);
+
+	_pstmt->setDouble(25, tick->BidPrice2);
+	_pstmt->setInt(26, tick->BidVolume2);
+	_pstmt->setDouble(27, tick->AskPrice2);
+	_pstmt->setInt(28, tick->AskVolume2);
+
+	_pstmt->setDouble(29, tick->BidPrice3);
+	_pstmt->setInt(30, tick->BidVolume3);
+	_pstmt->setDouble(31, tick->AskPrice3);
+	_pstmt->setInt(32, tick->AskVolume3);
+
+	_pstmt->setDouble(33, tick->BidPrice4);
+	_pstmt->setInt(34, tick->BidVolume4);
+	_pstmt->setDouble(35, tick->AskPrice4);
+	_pstmt->setInt(36, tick->AskVolume4);
+
+	_pstmt->setDouble(37, tick->BidPrice5);
+	_pstmt->setInt(38, tick->BidVolume5);
+	_pstmt->setDouble(39, tick->AskPrice5);
+	_pstmt->setInt(40, tick->AskVolume5);
+
+	Log("MysqlDb::tick_data 2");
+
+	int update_ret = execute_pre_update(_pstmt);
+
+	return update_ret > 0;
 }
 

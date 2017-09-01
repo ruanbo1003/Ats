@@ -1,7 +1,7 @@
 /*
  * TraderTest.cpp
  *
- *  Created on: 2017Äê8ÔÂ11ÈÕ
+ *  Created on: 2017å¹´8æœˆ11æ—¥
  *      Author: ruanbo
  */
 
@@ -14,7 +14,7 @@ void trader_test()
 	CThostFtdcTraderApi* api = CThostFtdcTraderApi::CreateFtdcTraderApi("traderData/");
 	if(!api)
 	{
-		LogError("´´½¨ TraderApi³ö´í");
+		LogError("åˆ›å»º TraderApiå‡ºé”™");
 		return;
 	}
 

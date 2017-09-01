@@ -47,20 +47,20 @@ private:
 
 	AtsConfigPtr _config;
 
-	unsigned long int _run_secs;   // ÔËĞĞµÄÃëÊı
+	unsigned long int _run_secs;   // è¿è¡Œçš„ç§’æ•°
 
-	string _settlement_path;  // ½áËãĞÅÏ¢ÎÄ¼ş¸ùÄ¿Â¼
-	string _run_path; // µ±Ç°Â·¾¶
+	string _settlement_path;  // ç»“ç®—ä¿¡æ¯æ–‡ä»¶æ ¹ç›®å½•
+	string _run_path; // å½“å‰è·¯å¾„
 
-	//Ê±¼ä²Ù×÷
+	//æ—¶é—´æ“ä½œ
 	TimeOpPtr _time_op;
-	// ½áËãµ¥logÎÄ¼ş
+	// ç»“ç®—å•logæ–‡ä»¶
 	FileOpPtr _settlement_f;
-	// ±àÂë×ª»»
+	// ç¼–ç è½¬æ¢
 	CodeConvertPtr _cc;
-	// ¶©µ¥¹ÜÀí
+	// è®¢å•ç®¡ç†
 	OrderMngrPtr _order_mngr;
-	// MySqlÊı¾İ¿â
+	// MySqlæ•°æ®åº“
 	MysqlDbPtr _mysql;
 
 	map<int, std::function<void(void)>> _init_funcs;
@@ -77,7 +77,7 @@ private:
 	AtsStatus status() const;
 
 public:
-	// ³õÊ¼»¯¼°ÔËĞĞ£¬Í£Ö¹½Ó¿Ú
+	// åˆå§‹åŒ–åŠè¿è¡Œï¼Œåœæ­¢æ¥å£
 	bool init(const AtsConfigPtr& config);
 
 	bool uninit();
@@ -118,68 +118,68 @@ public:
 	void reqLogout();
 
 public:
-	/* ÎªÁËÊ¹Í¶×ÊÕß¼°Ê±×¼È·µÄÁË½â×Ô¼ºµÄ½»Ò××´¿ö£¬Èç¿ÉÓÃ×Ê½ğ£¬³Ö²Ö£¬±£Ö¤½ğÕ¼ÓÃµÈ£¬´Ó¶ø¼°Ê±ÁË½â×Ô¼ºµÄ·ç
-	 ÏÕ×´¿ö£¬×ÛºÏ½»Ò×Æ½Ì¨ÒªÇóÍ¶×ÊÕßÔÚÃ¿Ò»¸ö½»Ò×ÈÕ½øĞĞ½»Ò×Ç°¶¼±ØĞë¶ÔÇ°Ò»½»Ò×ÈÕµÄ½áËã½á¹û½øĞĞÈ·ÈÏ¡£
+	/* ä¸ºäº†ä½¿æŠ•èµ„è€…åŠæ—¶å‡†ç¡®çš„äº†è§£è‡ªå·±çš„äº¤æ˜“çŠ¶å†µï¼Œå¦‚å¯ç”¨èµ„é‡‘ï¼ŒæŒä»“ï¼Œä¿è¯é‡‘å ç”¨ç­‰ï¼Œä»è€ŒåŠæ—¶äº†è§£è‡ªå·±çš„é£
+	 é™©çŠ¶å†µï¼Œç»¼åˆäº¤æ˜“å¹³å°è¦æ±‚æŠ•èµ„è€…åœ¨æ¯ä¸€ä¸ªäº¤æ˜“æ—¥è¿›è¡Œäº¤æ˜“å‰éƒ½å¿…é¡»å¯¹å‰ä¸€äº¤æ˜“æ—¥çš„ç»“ç®—ç»“æœè¿›è¡Œç¡®è®¤ã€‚
 	 */
 	void check_settlement();
 
-	// ²éÑ¯Í¶×ÊÕß½áËãµ¥
+	// æŸ¥è¯¢æŠ•èµ„è€…ç»“ç®—å•
 	void reqSettlementInfo();
 	void OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementInfo, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-	// È·ÈÏ½áËãµ¥
+	// ç¡®è®¤ç»“ç®—å•
 	void SettlementInfoConfirm();
 	void OnRspSettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-	// ²éÑ¯½áËãµ¥È·ÈÏµÄÈÕÆÚ
+	// æŸ¥è¯¢ç»“ç®—å•ç¡®è®¤çš„æ—¥æœŸ
 	void reqSettlementInfoConfrm();
 	void OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 	void on_settlement_confirmed(bool directConfirm = false);
 
 public:
-	//³Ö²Ö
+	//æŒä»“
 	void reqInvestorPosition();
 	void OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestorPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 public:
-	//±¨µ¥
+	//æŠ¥å•
 	void onOrderInsert();
-	//±£µ¥×´Ì¬
+	//ä¿å•çŠ¶æ€
 	void OnRtnOrder(CThostFtdcOrderField *pOrder);
 
-	//°üº¬´íÎóĞÅÏ¢µÄ±¨µ¥Â¼ÈëÇëÇóÏìÓ¦
+	//åŒ…å«é”™è¯¯ä¿¡æ¯çš„æŠ¥å•å½•å…¥è¯·æ±‚å“åº”
 	void OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-	//±¨µ¥Â¼Èë´íÎó»Ø±¨,¡¡±¨µ¥±»ctp¾Ü¾øÊÇ·µ»Ø
+	//æŠ¥å•å½•å…¥é”™è¯¯å›æŠ¥,ã€€æŠ¥å•è¢«ctpæ‹’ç»æ˜¯è¿”å›
 	void OnErrRtnOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo);
-	//´éºÏ³É¹¦Í¨Öª
+	//æ’®åˆæˆåŠŸé€šçŸ¥
 	void OnRtnTrade(CThostFtdcTradeField *pTrade);
 
-	//´´½¨Ò»¸ö±¨µ¥
+	//åˆ›å»ºä¸€ä¸ªæŠ¥å•
 	bool make_order();
 
 public:
-	// ºÏÔ¼
+	// åˆçº¦
 	void reqAllInstrument();
 
 	void OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
-	//²éÑ¯ºÏÔ¼ÏêÇé
+	//æŸ¥è¯¢åˆçº¦è¯¦æƒ…
 	void reqOneDepthMarketData();
 
 	void OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 public:
-	//¡¡×Ê½ğÕË»§
+	//ã€€èµ„é‡‘è´¦æˆ·
 	void reqTradingAccount();
 	void OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccount, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 private:
-	//´íÎóÓ¦´ğ
+	//é”™è¯¯åº”ç­”
 	void OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 private:
 	void showRspInfo(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
-	//±àÂë×ª»»£¬CodeConvert
+	//ç¼–ç è½¬æ¢ï¼ŒCodeConvert
 	const char* onCC(char* pSrc, size_t len = 0);
 
 };

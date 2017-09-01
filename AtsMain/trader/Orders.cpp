@@ -7,7 +7,7 @@
 
 #include <AtsMain/trader/AtsTrader.hpp>
 
-//±¨µ¥
+//æŠ¥å•
 void AtsTrader::onOrderInsert()
 {
 	if(status() != ATS_Confirmed)
@@ -36,7 +36,7 @@ void AtsTrader::onOrderInsert()
 
 	if(true)
 	{
-		//ÊĞ¼Ûµ¥
+		//å¸‚ä»·å•
 		ord.OrderPriceType = THOST_FTDC_OPT_AnyPrice;
 		ord.LimitPrice = 0;
 		ord.TimeCondition = THOST_FTDC_TC_IOC;
@@ -44,14 +44,14 @@ void AtsTrader::onOrderInsert()
 
 	if(false)
 	{
-		//ÏŞ¼Ûµ¥
+		//é™ä»·å•
 		ord.OrderPriceType = THOST_FTDC_OPT_LimitPrice;
 		ord.LimitPrice = 1900.00;
 		ord.TimeCondition = THOST_FTDC_TC_GFD;
 	}
 	if(false)
 	{
-		//Ìõ¼şµ¥
+		//æ¡ä»¶å•
 		ord.ContingentCondition = THOST_FTDC_CC_LastPriceGreaterThanStopPrice;
 		ord.StopPrice = 2150;
 		ord.OrderPriceType = THOST_FTDC_OPT_LimitPrice;
@@ -61,79 +61,79 @@ void AtsTrader::onOrderInsert()
 
 	int ret = _pUserApi->ReqOrderInsert(&ord, ++_requestId);
 
-	Log("\n\n\nonOrderInsert ±¨µ¥ ret:%d\n", ret);
+	Log("\n\n\nonOrderInsert æŠ¥å• ret:%d\n", ret);
 }
 
-//±£µ¥×´Ì¬
+//ä¿å•çŠ¶æ€
 void AtsTrader::OnRtnOrder(CThostFtdcOrderField *pOrder)
 {
 	if(!pOrder)
 	{
-		Log("===OnRtnOrder ±¨µ¥×´Ì¬ null \n");
+		Log("===OnRtnOrder æŠ¥å•çŠ¶æ€ null \n");
 		return;
 	}
 
-	Log("===OnRtnOrder ±¨µ¥×´Ì¬ begin====");
+	Log("===OnRtnOrder æŠ¥å•çŠ¶æ€ begin====");
 
-	Log("±¨µ¥±àºÅ:%s", pOrder->OrderSysID);
-	Log("±¨µ¥×´Ì¬:%c", pOrder->OrderStatus);
-	Log("½ñ³É½»ÊıÁ¿:%d", pOrder->VolumeTraded);
-//	Log("×´Ì¬ĞÅÏ¢:%s", _cc->convert2(pOrder->StatusMsg, strlen(pOrder->StatusMsg)));
-	Log("×´Ì¬ĞÅÏ¢:%s", pOrder->StatusMsg);
+	Log("æŠ¥å•ç¼–å·:%s", pOrder->OrderSysID);
+	Log("æŠ¥å•çŠ¶æ€:%c", pOrder->OrderStatus);
+	Log("ä»Šæˆäº¤æ•°é‡:%d", pOrder->VolumeTraded);
+	Log("çŠ¶æ€ä¿¡æ¯:%s", _cc->convert2(pOrder->StatusMsg, strlen(pOrder->StatusMsg)));
+//	Log("çŠ¶æ€ä¿¡æ¯:%s", pOrder->StatusMsg);
 
-	Log("===OnRtnOrder ±¨µ¥×´Ì¬ end====\n");
+	Log("===OnRtnOrder æŠ¥å•çŠ¶æ€ end====\n");
 }
 
-//°üº¬´íÎóĞÅÏ¢µÄ±¨µ¥Â¼ÈëÇëÇóÏìÓ¦
+//åŒ…å«é”™è¯¯ä¿¡æ¯çš„æŠ¥å•å½•å…¥è¯·æ±‚å“åº”
 void AtsTrader::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	if(!pInputOrder)
 	{
-		Log("===OnRspOrderInsert ±¨µ¥Â¼ÈëÇëÇóÏìÓ¦ null \n");
+		Log("===OnRspOrderInsert æŠ¥å•å½•å…¥è¯·æ±‚å“åº” null \n");
 		return;
 	}
 
-	Log("===OnRspOrderInsert ±¨µ¥´íÎóĞÅÏ¢ begin====");
+	Log("===OnRspOrderInsert æŠ¥å•é”™è¯¯ä¿¡æ¯ begin====");
 
-	Log("´íÎó´úÂë:%d", pRspInfo->ErrorID);
-	Log("´íÎóĞÅÏ¢:%s", pRspInfo->ErrorMsg);
+	Log("é”™è¯¯ä»£ç :%d", pRspInfo->ErrorID);
+	Log("é”™è¯¯ä¿¡æ¯:%s", pRspInfo->ErrorMsg);
 
-	Log("===OnRspOrderInsert ±¨µ¥´íÎóĞÅÏ¢ end====\n");
+	Log("===OnRspOrderInsert æŠ¥å•é”™è¯¯ä¿¡æ¯ end====\n");
 }
 
-///±¨µ¥Â¼Èë´íÎó»Ø±¨, ±¨µ¥±»ctp¾Ü¾øÊÇ·µ»Ø
+///æŠ¥å•å½•å…¥é”™è¯¯å›æŠ¥, æŠ¥å•è¢«ctpæ‹’ç»æ˜¯è¿”å›
 void AtsTrader::OnErrRtnOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo)
 {
 	if(!pInputOrder)
 	{
-		Log("===OnRspOrderInsert ±¨µ¥Â¼ÈëÇëÇóÏìÓ¦ null \n");
+		Log("===OnRspOrderInsert æŠ¥å•å½•å…¥è¯·æ±‚å“åº” null \n");
 		return;
 	}
 
-	Log("===OnErrRtnOrderInsert ±¨µ¥Â¼Èë´íÎó»Ø±¨ begin====");
+	Log("===OnErrRtnOrderInsert æŠ¥å•å½•å…¥é”™è¯¯å›æŠ¥ begin====");
 
-	Log("´íÎó´úÂë:%d", pRspInfo->ErrorID);
-	Log("´íÎóĞÅÏ¢:%s", pRspInfo->ErrorMsg);
+	Log("é”™è¯¯ä»£ç :%d", pRspInfo->ErrorID);
+	Log("é”™è¯¯ä¿¡æ¯:%s", pRspInfo->ErrorMsg);
 
-	Log("===OnErrRtnOrderInsert ±¨µ¥Â¼Èë´íÎó»Ø±¨ end====\n");
+	Log("===OnErrRtnOrderInsert æŠ¥å•å½•å…¥é”™è¯¯å›æŠ¥ end====\n");
 }
 
-//´éºÏ³É¹¦Í¨Öª
+//æ’®åˆæˆåŠŸé€šçŸ¥
 void AtsTrader::OnRtnTrade(CThostFtdcTradeField *pTrade)
 {
-	Log("===OnRtnTrade ³É½»Í¨Öª begin====");
+	Log("===OnRtnTrade æˆäº¤é€šçŸ¥ begin====");
 
-	Log("ºÏÔ¼´úÂë:%s", pTrade->InstrumentID);
-	Log("³É½»±àºÅ:%s", pTrade->TradeID);
-	Log("¼Û¸ñ:%f", pTrade->Price);
-	Log("ÊıÁ¿:%d", pTrade->Volume);
-	Log("³É½»Ê±ÆÚ:%s", pTrade->TradeDate);
-	Log("³É½»Ê±¼ä:%s", pTrade->TradeTime);
-	Log("³É½»ÀàĞÍ:%c", pTrade->TradeType);
-	Log("³É½»¼ÛÀ´Ô´:%c", pTrade->PriceSource);
-	Log("³É½»À´Ô´:%c", pTrade->TradeSource);
+	Log("åˆçº¦ä»£ç :%s", pTrade->InstrumentID);
+	Log("æˆäº¤ç¼–å·:%s", pTrade->TradeID);
+	Log("ä»·æ ¼:%f", pTrade->Price);
+	Log("æ•°é‡:%d", pTrade->Volume);
+	Log("æˆäº¤æ—¶æœŸ:%s", pTrade->TradeDate);
+	Log("æˆäº¤æ—¶é—´:%s", pTrade->TradeTime);
+	Log("æˆäº¤ç±»å‹:%c", pTrade->TradeType);
+	Log("æˆäº¤ä»·æ¥æº:%c", pTrade->PriceSource);
+	Log("æˆäº¤æ¥æº:%c", pTrade->TradeSource);
 
-	Log("===OnRtnTrade ³É½»Í¨Öª end====\n");
+	Log("===OnRtnTrade æˆäº¤é€šçŸ¥ end====\n");
 }
 
 //

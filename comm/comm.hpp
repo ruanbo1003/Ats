@@ -34,5 +34,10 @@ void stdcopy(char* dest, const char* src, size_t len);
 #define gettid() syscall(__NR_gettid)
 
 
+//1000万亿
+#define DoubleMaxDef 1000000000000000
+#define DoubleCheck(v) {if((v) > DoubleMaxDef){v=0;}}
+
+
 
 #endif /* COMM_COMM_HPP_ */

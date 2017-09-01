@@ -66,7 +66,7 @@ TimerEventType TimeOp::update()
 
 	if(cur_s - _last_s > 1)
 	{
-		Log("¶¨Ê±¼ä¸ô³¬¹ı1Ãë¡£");
+		Log("å®šæ—¶é—´éš”è¶…è¿‡1ç§’ã€‚");
 	}
 
 	_last_s = cur_s;
@@ -79,7 +79,7 @@ std::pair<string, string> TimeOp::date_time()
 {
 	onUpdate();
 
-	//GCC5 ²ÅÖ§³Ö std::put_time
+	//GCC5 æ‰æ”¯æŒ std::put_time
 //    string fmt_date = "";
 //    string fmt_time = "";
 //

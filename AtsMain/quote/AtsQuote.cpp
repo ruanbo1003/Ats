@@ -26,10 +26,17 @@ bool AtsQuote::init(const AtsConfigPtr& config)
 {
 	_config = config;
 
+	_mysql = MysqlDbPtr(new MysqlDb(_config->_mysql_addr, _config->_mysql_user, _config->_mysql_passwd));
+	if(_mysql->init() == false)
+	{
+		Log("MysqlDb init failed");
+		return false;
+	}
+
 	_pUserApi = CThostFtdcMdApi::CreateFtdcMdApi("quoteData/", false);
     if(!_pUserApi)
     {
-        LogError("´´½¨MdApi³ö´í");
+        LogError("åˆ›å»ºMdApiå‡ºé”™");
         return false;
     }
 
@@ -50,6 +57,8 @@ void AtsQuote::unit()
 	_pUserApi->RegisterSpi(NULL);
 	_pUserApi->Release();
 	_pUserApi = NULL;
+
+	Log("QtsQuote::unit end");
 }
 
 void AtsQuote::run()
@@ -69,7 +78,7 @@ void AtsQuote::OnFrontConnected()
 
     Log("AtsQuote thread id:%ld\n", gettid());
 
-//    ReqUserLogin();
+    ReqUserLogin();
 }
 
 void AtsQuote::OnFrontDisconnected(int nReason)
@@ -126,6 +135,8 @@ void AtsQuote::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThost
     {
         Log("ctp trader user login success.\n");
         _is_login = true;
+
+        OnReqAllInstrument();
     }
 }
 
@@ -153,7 +164,7 @@ void AtsQuote::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtd
 {
     if(pRspInfo && pRspInfo->ErrorID != 0)
     {
-    	Log("AtsQuote Logout·µ»Ø´íÎó£¬ErrorId:%d \n", pRspInfo->ErrorID);
+    	Log("AtsQuote Logoutè¿”å›žé”™è¯¯ï¼ŒErrorId:%d \n", pRspInfo->ErrorID);
     	return;
     }
 

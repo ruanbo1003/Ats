@@ -85,6 +85,8 @@ void RunHelper::run()
 
     _ats->stop();
 
+    Log("RunHelper ats stop end");
+
     _ats->join();
 }
 

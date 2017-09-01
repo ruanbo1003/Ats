@@ -6,11 +6,11 @@
 	</account>
 	<mysql addr="127.0.0.1:3306" user="root" passwd="123456" >
 	</mysql> 
-	<quote run="0">
+	<quote run="1">
 		<front addr="tcp://218.202.237.33:10012" comment="SimNow的接口" >
 		</front>
 	</quote>
-	<trader run="1">
+	<trader run="0">
 		<front addr="tcp://180.168.146.187:10001" comment="SimNow的接口" >
 		</front>
 	</trader>

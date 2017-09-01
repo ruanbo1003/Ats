@@ -47,7 +47,7 @@ void AtsTrader::init_vals()
 	_run_path = utils::get_path();
 
 	_time_op = TimeOpPtr(new TimeOp());
-	_cc = CodeConvertPtr(new CodeConvert("latin1", "utf-8"));
+	_cc = CodeConvertPtr(new CodeConvert("GBK", "utf-8"));
 	_order_mngr = OrderMngrPtr(new OrderMngr());
 
 	_mysql = MysqlDbPtr(new MysqlDb(_config->_mysql_addr, _config->_mysql_user, _config->_mysql_passwd));
@@ -64,7 +64,7 @@ AtsStatus AtsTrader::status() const
 	return _ats_status;
 }
 
-// ³õÊ¼»¯¼°ÔËÐÐ£¬Í£Ö¹½Ó¿Ú
+// åˆå§‹åŒ–åŠè¿è¡Œï¼Œåœæ­¢æŽ¥å£
 bool AtsTrader::init(const AtsConfigPtr& config)
 {
 	LogTid();
@@ -82,7 +82,7 @@ bool AtsTrader::init(const AtsConfigPtr& config)
 	_pUserApi = CThostFtdcTraderApi::CreateFtdcTraderApi("traderData/");
 	if(!_pUserApi)
 	{
-		LogError("´´½¨ TraderApi³ö´í");
+		LogError("åˆ›å»º TraderApiå‡ºé”™");
 		return false;
 	}
 
@@ -308,28 +308,28 @@ void AtsTrader::OnFrontDisconnected(int nReason)
 
 	if(nReason == 0x1001)
 	{
-		Log("ÍøÂç¶ÁÊ§°Ü");
+		Log("ç½‘ç»œè¯»å¤±è´¥");
 	}
 	else if(nReason == 0x1002)
 	{
-		Log("ÍøÂçÐ´Ê§°Ü");
+		Log("ç½‘ç»œå†™å¤±è´¥");
 	}
 	else if(nReason == 0x2001)
 	{
-		Log("½ÓÊÕÐÄÌø³¬Ê±");
+		Log("æŽ¥æ”¶å¿ƒè·³è¶…æ—¶");
 	}
 	else if(nReason == 0x2002)
 	{
-		Log("·¢ËÍÐÄÌøÊ§°Ü");
+		Log("å‘é€å¿ƒè·³å¤±è´¥");
 	}
 	else if(nReason == 0x2003)
 	{
-		Log("ÊÕµ½´íÎó±¨ÎÄ");
+		Log("æ”¶åˆ°é”™è¯¯æŠ¥æ–‡");
 	}
 	else
 	{
-		Log("Î´ÖªÔ­Òò¶Ï¿ªÁ¬½Ó¡£")
-		LogError("Î´ÖªÔ­Òò¶Ï¿ªÁ¬½Ó¡£")
+		Log("æœªçŸ¥åŽŸå› æ–­å¼€è¿žæŽ¥ã€‚")
+		LogError("æœªçŸ¥åŽŸå› æ–­å¼€è¿žæŽ¥ã€‚")
 	}
 }
 
@@ -342,9 +342,9 @@ void AtsTrader::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThos
 		Log("BrokerID:%s", pRspUserLogin->BrokerID);
 		Log("UserID:%s", pRspUserLogin->UserID);
 		Log("SystemName:%s", pRspUserLogin->SystemName);
-		Log("FrontIDÇ°ÖÃ±àºÅ:%d", pRspUserLogin->FrontID);
-		Log("SessionID»á»°±àºÅ:%d", pRspUserLogin->SessionID);
-		Log("MaxOrderRef×î´ó±¨µ¥±àºÅ:%s", pRspUserLogin->MaxOrderRef);
+		Log("FrontIDå‰ç½®ç¼–å·:%d", pRspUserLogin->FrontID);
+		Log("SessionIDä¼šè¯ç¼–å·:%d", pRspUserLogin->SessionID);
+		Log("MaxOrderRefæœ€å¤§æŠ¥å•ç¼–å·:%s", pRspUserLogin->MaxOrderRef);
 		Log("SHFETime:%s", pRspUserLogin->SHFETime);
 		Log("DCETime:%s", pRspUserLogin->DCETime);
 		Log("CZCETime:%s", pRspUserLogin->CZCETime);
@@ -387,10 +387,10 @@ bool AtsTrader::is_login() const
 	return (status() == ATS_Logined);
 }
 
-//´íÎóÓ¦´ð
+//é”™è¯¯åº”ç­”
 void AtsTrader::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-	Log("OnRspError ´íÎóÓ¦´ð:[%d,%s], nRequestId:%d, bIsLast:%d\n", pRspInfo->ErrorID, onCC(pRspInfo->ErrorMsg), nRequestID, bIsLast);
+	Log("OnRspError é”™è¯¯åº”ç­”:[%d,%s], nRequestId:%d, bIsLast:%d\n", pRspInfo->ErrorID, onCC(pRspInfo->ErrorMsg), nRequestID, bIsLast);
 }
 void AtsTrader::showRspInfo(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {

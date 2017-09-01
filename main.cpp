@@ -15,6 +15,7 @@ int main(int argc, const char *argv[])
     bool run_test = false;
     if(run_test)
     {
+    	//测试入口
         test_entry();
 
         Log("\nend of main tests===");

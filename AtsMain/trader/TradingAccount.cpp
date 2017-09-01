@@ -9,7 +9,7 @@
 #include <AtsMain/trader/AtsTrader.hpp>
 
 /*
- * ×Ê½ğ£¬ÕË»§
+ * èµ„é‡‘ï¼Œè´¦æˆ·
  */
 
 void AtsTrader::reqTradingAccount()
@@ -23,11 +23,11 @@ void AtsTrader::reqTradingAccount()
     int ret = _pUserApi->ReqQryTradingAccount(&req, ++_requestId);
     if(ret == 0)
     {
-        Log("²éÑ¯×Ê½ğÕË»§ret ok");
+        Log("æŸ¥è¯¢èµ„é‡‘è´¦æˆ·ret ok");
     }
     else
     {
-        Log("²éÑ¯×Ê½ğÕË»§ret(%d) failed", ret);
+        Log("æŸ¥è¯¢èµ„é‡‘è´¦æˆ·ret(%d) failed", ret);
     }
 }
 
@@ -42,32 +42,32 @@ void AtsTrader::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAc
 
     if(!pTradingAccount)
     {
-        Log("²éÑ¯×Ê½ğÕË»§·µ»ØNULL");
+        Log("æŸ¥è¯¢èµ„é‡‘è´¦æˆ·è¿”å›NULL");
         return;
     }
 
-    Log("²éÑ¯×Ê½ğÕË»§·µ»Ø");
-    Log("¾­¼Í¹«Ë¾´úÂë:%s", pTradingAccount->BrokerID);
-    Log("Í¶×ÊÕßÕÊºÅ:%s", pTradingAccount->AccountID);
-    Log("ÉÏ´Î´æ¿î¶î:%lf", pTradingAccount->PreDeposit);
-    Log("ÀûÏ¢»ùÊı:%lf", pTradingAccount->InterestBase);
-    Log("ÀûÏ¢ÊÕÈë:%lf", pTradingAccount->Interest);
-    Log("Èë½ğ½ğ¶î:%lf", pTradingAccount->Deposit);
-    Log("³ö½ğ½ğ¶î:%lf", pTradingAccount->Withdraw);
-    Log("¶³½áµÄ±£Ö¤½ğ:%lf", pTradingAccount->FrozenMargin);
-    Log("¶³½áµÄ×Ê½ğ:%lf", pTradingAccount->FrozenCash);
-    Log("ÊÖĞø·Ñ:%lf", pTradingAccount->Commission);
-    Log("Æ½²ÖÓ¯¿÷:%lf", pTradingAccount->CloseProfit);
-    Log("³Ö²ÖÓ¯¿÷:%lf", pTradingAccount->PositionProfit);
-    Log("¿ÉÓÃ×Ê½ğ:%lf", pTradingAccount->Available);
-    Log("¿ÉÈ¡×Ê½ğ:%lf", pTradingAccount->WithdrawQuota);
-    Log("½»Ò×ÈÕ:%s", pTradingAccount->TradingDay);
-    Log("ĞÅÓÃ¶î¶È:%lf", pTradingAccount->Credit);
-    Log("±ÒÖÖ´úÂë:%s\n", pTradingAccount->CurrencyID);
+    Log("æŸ¥è¯¢èµ„é‡‘è´¦æˆ·è¿”å›");
+    Log("ç»çºªå…¬å¸ä»£ç :%s", pTradingAccount->BrokerID);
+    Log("æŠ•èµ„è€…å¸å·:%s", pTradingAccount->AccountID);
+    Log("ä¸Šæ¬¡å­˜æ¬¾é¢:%lf", pTradingAccount->PreDeposit);
+    Log("åˆ©æ¯åŸºæ•°:%lf", pTradingAccount->InterestBase);
+    Log("åˆ©æ¯æ”¶å…¥:%lf", pTradingAccount->Interest);
+    Log("å…¥é‡‘é‡‘é¢:%lf", pTradingAccount->Deposit);
+    Log("å‡ºé‡‘é‡‘é¢:%lf", pTradingAccount->Withdraw);
+    Log("å†»ç»“çš„ä¿è¯é‡‘:%lf", pTradingAccount->FrozenMargin);
+    Log("å†»ç»“çš„èµ„é‡‘:%lf", pTradingAccount->FrozenCash);
+    Log("æ‰‹ç»­è´¹:%lf", pTradingAccount->Commission);
+    Log("å¹³ä»“ç›ˆäº:%lf", pTradingAccount->CloseProfit);
+    Log("æŒä»“ç›ˆäº:%lf", pTradingAccount->PositionProfit);
+    Log("å¯ç”¨èµ„é‡‘:%lf", pTradingAccount->Available);
+    Log("å¯å–èµ„é‡‘:%lf", pTradingAccount->WithdrawQuota);
+    Log("äº¤æ˜“æ—¥:%s", pTradingAccount->TradingDay);
+    Log("ä¿¡ç”¨é¢åº¦:%lf", pTradingAccount->Credit);
+    Log("å¸ç§ä»£ç :%s\n", pTradingAccount->CurrencyID);
 
     if(bIsLast)
     {
-        Log("×Ê½ğÕË»§²éÑ¯½áÊø===============\n");
+        Log("èµ„é‡‘è´¦æˆ·æŸ¥è¯¢ç»“æŸ===============\n");
     }
 }
 

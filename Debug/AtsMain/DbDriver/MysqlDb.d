@@ -4,6 +4,8 @@ AtsMain/DbDriver/MysqlDb.o: ../AtsMain/DbDriver/MysqlDb.cpp \
  /home/ruanbo/Codes/Ats/comm/global.hpp \
  /home/ruanbo/Codes/Ats/comm/Log.hpp \
  /home/ruanbo/Codes/Ats/utils/Buffer.hpp \
+ /home/ruanbo/Codes/Ats/ctp/ThostFtdcUserApiStruct.h \
+ /home/ruanbo/Codes/Ats/ctp/ThostFtdcUserApiDataType.h \
  /home/ruanbo/Codes/Ats/utils/utils.hpp
 
 ../AtsMain/DbDriver/MysqlDb.hpp:
@@ -17,5 +19,9 @@ AtsMain/DbDriver/MysqlDb.o: ../AtsMain/DbDriver/MysqlDb.cpp \
 /home/ruanbo/Codes/Ats/comm/Log.hpp:
 
 /home/ruanbo/Codes/Ats/utils/Buffer.hpp:
+
+/home/ruanbo/Codes/Ats/ctp/ThostFtdcUserApiStruct.h:
+
+/home/ruanbo/Codes/Ats/ctp/ThostFtdcUserApiDataType.h:
 
 /home/ruanbo/Codes/Ats/utils/utils.hpp:

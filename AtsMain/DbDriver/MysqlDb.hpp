@@ -11,6 +11,8 @@
 #include <comm/comm.hpp>
 #include "utils/Buffer.hpp"
 
+#include "ctp/ThostFtdcUserApiStruct.h"
+
 #include <iostream>
 #include <memory>
 #include <string>
@@ -94,6 +96,9 @@ public:
 public:
     bool setttlement_confirm(const string& date, time_t t);
     bool is_settlement_confirmed(const string& date);
+
+public:
+    bool tick_data(const CThostFtdcDepthMarketDataField* tick);
 };
 
 

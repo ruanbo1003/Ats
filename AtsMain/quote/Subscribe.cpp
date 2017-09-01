@@ -1,7 +1,7 @@
 /*
  * Subscribe.cpp
  *
- *  Created on: 2017Äê8ÔÂ11ÈÕ
+ *  Created on: 2017å¹´8æœˆ11æ—¥
  *      Author: ruanbo
  */
 
@@ -17,7 +17,7 @@ void AtsQuote::OnReqAllInstrument()
     {
         instrumentIds[i] = new char[32];
         memset(instrumentIds[i], 0, 32);
-        strcpy(instrumentIds[i], "IF1709");
+        strcpy(instrumentIds[i], "IF1712");
     }
 
     int ret = _pUserApi->SubscribeMarketData(instrumentIds, 1);
@@ -36,7 +36,7 @@ void AtsQuote::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificIn
     LogLine("OnRspSubMarketData ");
     showRspInfo(pRspInfo, nRequestID, bIsLast);
 
-    Log("ºÏÔ¼id£º%s", pSpecificInstrument->InstrumentID);
+    Log("åˆçº¦idï¼š%s", pSpecificInstrument->InstrumentID);
 }
 
 void AtsQuote::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -46,7 +46,45 @@ void AtsQuote::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecific
 
 void AtsQuote::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
 {
+	if(!pDepthMarketData)
+	{
+		return;
+	}
+
     Log("AtsQuote::OnRtnDepthMarketData:%s", pDepthMarketData->InstrumentID);
+
+    clean_tick_data(pDepthMarketData);
+    _mysql->tick_data(pDepthMarketData);
+}
+
+void AtsQuote::clean_tick_data(CThostFtdcDepthMarketDataField *data)
+{
+	DoubleCheck(data->LastPrice);
+	DoubleCheck(data->PreSettlementPrice);
+	DoubleCheck(data->PreClosePrice);
+	DoubleCheck(data->PreOpenInterest);
+	DoubleCheck(data->OpenPrice);
+	DoubleCheck(data->HighestPrice);
+	DoubleCheck(data->LowestPrice);
+	DoubleCheck(data->Turnover);
+	DoubleCheck(data->OpenInterest);
+	DoubleCheck(data->ClosePrice);
+	DoubleCheck(data->SettlementPrice);
+	DoubleCheck(data->UpperLimitPrice);
+	DoubleCheck(data->LowerLimitPrice);
+	DoubleCheck(data->PreDelta);
+	DoubleCheck(data->CurrDelta);
+
+	DoubleCheck(data->BidPrice1);
+	DoubleCheck(data->AskPrice1);
+	DoubleCheck(data->BidPrice2);
+	DoubleCheck(data->AskPrice2);
+	DoubleCheck(data->BidPrice3);
+	DoubleCheck(data->AskPrice3);
+	DoubleCheck(data->BidPrice4);
+	DoubleCheck(data->AskPrice4);
+	DoubleCheck(data->BidPrice5);
+	DoubleCheck(data->AskPrice5);
 }
 
 

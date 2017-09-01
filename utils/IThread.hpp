@@ -21,10 +21,10 @@ class IThread : public NonCopyable
 private:
     std::thread _thread;
     bool _quit;
-    bool _over;  // ÊÇ·ñÒÑ¾­ÍË³öÁË
+    bool _over;  // æ˜¯å¦å·²ç»é€€å‡ºäº†
     std::string _name;
 
-    //¶¨Ê±Æ÷±äÁ¿
+    //å®šæ—¶å™¨å˜é‡
     long int _last_ms;
     long int _last_s;
     std::tm _last_tm;

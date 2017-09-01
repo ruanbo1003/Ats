@@ -67,6 +67,7 @@ public:
     void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData);
 
 private:
+    void clean_tick_data(CThostFtdcDepthMarketDataField *data);
 
 };
 

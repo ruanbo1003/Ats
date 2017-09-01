@@ -9,6 +9,7 @@ AtsMain/quote/Subscribe.o: ../AtsMain/quote/Subscribe.cpp \
  /home/ruanbo/Codes/Ats/comm/global.hpp \
  /home/ruanbo/Codes/Ats/comm/Log.hpp \
  /home/ruanbo/Codes/Ats/utils/Buffer.hpp \
+ /home/ruanbo/Codes/Ats/ctp/ThostFtdcUserApiStruct.h \
  /home/ruanbo/Codes/Ats/AtsMain/AtsConfig.hpp
 
 ../AtsMain/quote/AtsQuote.hpp:
@@ -30,5 +31,7 @@ AtsMain/quote/Subscribe.o: ../AtsMain/quote/Subscribe.cpp \
 /home/ruanbo/Codes/Ats/comm/Log.hpp:
 
 /home/ruanbo/Codes/Ats/utils/Buffer.hpp:
+
+/home/ruanbo/Codes/Ats/ctp/ThostFtdcUserApiStruct.h:
 
 /home/ruanbo/Codes/Ats/AtsMain/AtsConfig.hpp:

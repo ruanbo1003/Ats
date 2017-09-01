@@ -1,7 +1,7 @@
 /*
  * LogFile.cpp
  *
- *  Created on: 2017Äê8ÔÂ12ÈÕ
+ *  Created on: 2017å¹´8æœˆ12æ—¥
  *      Author: ruanbo
  */
 

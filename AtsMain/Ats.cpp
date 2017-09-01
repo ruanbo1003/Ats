@@ -138,7 +138,7 @@ void Ats::unit()
 //
 //        while(_quote_spi->is_login() == true)
 //        {
-//            usleep(10000);   // Î¢Ãë
+//            usleep(10000);   // å¾®ç§’
 //        }
 //    }
 
@@ -150,25 +150,26 @@ void Ats::unit()
     	_quote_spi = NULL;
     }
 
-    while(true)
+    if(_trader_spi)
     {
-        if(_trader_spi)
+        while(true)
         {
-            if(_trader_spi->can_quit() == false)
-            {
-            	_trader_spi->stop();
-            	sleep(1);
-            	continue;
-            }
+			if(_trader_spi->can_quit() == false)
+			{
+				_trader_spi->stop();
+				sleep(1);
+				continue;
+			}
 
-            _trader_spi->quit();
+			_trader_spi->quit();
 
-            delete _trader_spi;
-            _trader_spi = NULL;
+			delete _trader_spi;
+			_trader_spi = NULL;
 
-            break;
+			break;
         }
     }
+
 
 
     return;
