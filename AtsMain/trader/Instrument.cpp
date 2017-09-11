@@ -96,6 +96,48 @@ void AtsTrader::OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMa
 	{
 		Log("合约%s详情end=======\n\n", pDepthMarketData->InstrumentID);
 	}
-
 }
+
+
+
+
+void AtsTrader::reqInstrumentMarginRate()
+{
+	CThostFtdcQryInstrumentMarginRateField req;
+	memset(&req, 0, sizeof(req));
+	strcpy(req.BrokerID, _broker_id.data());
+	strcpy(req.InvestorID, _investor_id.data());
+    strcpy(req.InstrumentID, "IF1712");
+    req.HedgeFlag  = THOST_FTDC_HF_Hedge;
+
+	int ret = _pUserApi->ReqQryInstrumentMarginRate(&req, ++_requestId);
+	if(ret == 0)
+	{
+		Log("查询合约保证金率ret ok");
+	}
+	else
+	{
+		Log("查询合约保证金率ret(%d) failed", ret);
+	}
+}
+void AtsTrader::OnRspQryInstrumentMarginRate(CThostFtdcInstrumentMarginRateField *pInstrumentMarginRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
+{
+	if(pRspInfo->ErrorID==0 && bIsLast && pInstrumentMarginRate)
+	{
+		Log("查询合约保证金率返回OK");
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 

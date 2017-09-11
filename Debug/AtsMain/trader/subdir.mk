@@ -7,6 +7,7 @@ CPP_SRCS += \
 ../AtsMain/trader/AtsTrader.cpp \
 ../AtsMain/trader/Helper.cpp \
 ../AtsMain/trader/Instrument.cpp \
+../AtsMain/trader/Investor.cpp \
 ../AtsMain/trader/InvestorPotion.cpp \
 ../AtsMain/trader/Orders.cpp \
 ../AtsMain/trader/Settlement.cpp \
@@ -16,6 +17,7 @@ OBJS += \
 ./AtsMain/trader/AtsTrader.o \
 ./AtsMain/trader/Helper.o \
 ./AtsMain/trader/Instrument.o \
+./AtsMain/trader/Investor.o \
 ./AtsMain/trader/InvestorPotion.o \
 ./AtsMain/trader/Orders.o \
 ./AtsMain/trader/Settlement.o \
@@ -25,6 +27,7 @@ CPP_DEPS += \
 ./AtsMain/trader/AtsTrader.d \
 ./AtsMain/trader/Helper.d \
 ./AtsMain/trader/Instrument.d \
+./AtsMain/trader/Investor.d \
 ./AtsMain/trader/InvestorPotion.d \
 ./AtsMain/trader/Orders.d \
 ./AtsMain/trader/Settlement.d \

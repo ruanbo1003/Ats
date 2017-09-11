@@ -30,6 +30,8 @@ void AtsTrader::init_func()
 	_init_funcs[3] = std::bind(&AtsTrader::reqInvestorPosition, this);
 	_init_funcs[4] = std::bind(&AtsTrader::reqOneDepthMarketData, this);
 	_init_funcs[5] = std::bind(&AtsTrader::onOrderInsert, this);
+	_init_funcs[6] = std::bind(&AtsTrader::reqInvector, this);
+	_init_funcs[7] = std::bind(&AtsTrader::reqInstrumentMarginRate, this);
 }
 void AtsTrader::init_vals()
 {
